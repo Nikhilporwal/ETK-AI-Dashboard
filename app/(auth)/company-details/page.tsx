@@ -12,7 +12,7 @@ export default function CompanyDetailsPage() {
     const handleContinue = () => {
         // Step mapping to 4 will follow
         // For now navigation placeholder
-        // router.push("/somewhere")
+        router.push("/user-interests")
     }
 
     return (

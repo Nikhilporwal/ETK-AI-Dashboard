@@ -85,6 +85,7 @@ export default function MarketEntryModelPage() {
                     variant="primary"
                     className="w-full sm:flex-1"
                     disabled={!selectedStates.some(s => s)}
+                    onClick={() => router.push("/company-details")}
                 >
                     Continue
                 </Button>

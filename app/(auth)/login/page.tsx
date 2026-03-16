@@ -5,9 +5,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+    const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        // Mock Login Flow
+        if (email.trim() && password.trim() && email === "test@email.com" && password === "Test@11") {
+            localStorage.setItem("user_token", "mock_token_123")
+            router.push("/market-entry-model")
+        } else {
+            alert("Please provide valid email and password")
+        }
+    }
 
     return (
         <div className="w-full max-w-[420px] mx-auto space-y-8">
@@ -29,6 +44,8 @@ export default function LoginPage() {
                     <Input
                         type="email"
                         placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="border-[#203E93]"
                     />
                 </div>
@@ -42,6 +59,8 @@ export default function LoginPage() {
                     <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="border-[#203E93]"
                         rightIcon={
                             showPassword ? (
@@ -70,6 +89,7 @@ export default function LoginPage() {
                 <Button
                     variant="primary"
                     className="w-full h-14 text-base"
+                    onClick={handleLogin}
                 >
                     Log in
                 </Button>
