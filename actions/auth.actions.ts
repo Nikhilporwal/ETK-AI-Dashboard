@@ -8,8 +8,18 @@ interface LoginCredentials {
   password: string;
 }
 
+interface SignUpCredentials {
+  username: string;
+  email: string;
+  password: string;
+}
+
 export interface LoginResponse {
   access_token: string;
+}
+
+export interface SignUpResponse {
+  message: string;
 }
 
 export async function loginAction(credentials: LoginCredentials) {
@@ -30,6 +40,19 @@ export async function loginAction(credentials: LoginCredentials) {
     maxAge: 60 * 60 * 24 * 7,
     path: "/", // good practice
   });
+
+  return res.data;
+}
+
+export async function signupAction(data: SignUpCredentials) {
+  const res = await apiFetch<SignUpResponse>("/signup", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.success) {
+    throw new Error(res.message || "Registration failed");
+  }
 
   return res.data;
 }

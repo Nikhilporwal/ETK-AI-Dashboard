@@ -154,6 +154,7 @@ export default function UserInterestsPage() {
             disabled={
               selectedCountries.length === 0 || selectedIndustries.length === 0
             }
+            onClick={() => router.push("/maps")}
           >
             Continue
           </Button>
