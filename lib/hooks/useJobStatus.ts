@@ -1,24 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import apiFetch from "../api/api";
 
+export type JobStatus = "pending" | "processing" | "completed" | "failed";
+
+export interface JobStatusResponse {
+  status: JobStatus;
+  progress?: number;
+}
+
 export const useJobStatus = (jobId: string, isEnabled: boolean) => {
-  return useQuery({
+  return useQuery<JobStatusResponse>({
     queryKey: ["jobStatus", jobId],
+
     queryFn: async () => {
-      const response = await apiFetch(`/analysis/status/${jobId}`);
-      return response.data;
+      const res = await apiFetch<JobStatusResponse>(
+        `/analysis/status/${jobId}`,
+      );
+
+      if (!res.success) {
+        throw new Error(res.message);
+      }
+
+      return res.data;
     },
-    // Pooling Logic:
+
     refetchInterval: (query) => {
-      // Agar status 'completed' ya 'failed' ho jaye toh pooling rok do
-      if (
-        query.state.data?.status === "completed" ||
-        query.state.data?.status === "failed"
-      ) {
+      const status = query.state.data?.status;
+
+      if (status === "completed" || status === "failed") {
         return false;
       }
-      return 3000; // Har 3 seconds mein poll karo
+
+      return 3000;
     },
-    enabled: isEnabled && !!jobId, // Sirf tab start karo jab zaroorat ho
+
+    enabled: Boolean(isEnabled && jobId),
   });
 };
