@@ -1,100 +1,119 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { loginAction } from "@/actions/auth.actions";
+import { Loader } from "@/components/common/Loader";
 
 export default function LoginPage() {
-    const router = useRouter()
-    const [showPassword, setShowPassword] = useState(false)
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        // Mock Login Flow
-        if (email.trim() && password.trim() && email === "test@email.com" && password === "Test@11") {
-            localStorage.setItem("user_token", "mock_token_123")
-            router.push("/market-entry-model")
-        } else {
-            alert("Please provide valid email and password")
-        }
-    }
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: loginAction,
+    onSuccess: () => {
+      router.push("/market-entry-model");
+      router.refresh();
+    },
+  });
 
-    return (
-        <div className="w-full max-w-[420px] mx-auto space-y-8">
+  const handleLogin = (e: React.SubmitEvent) => {
+    e.preventDefault();
+    if (!username || !password) return;
+    mutate({ username, password });
+  };
 
-            {/* Title */}
-            <div className="text-center">
-                <h1 className="text-3xl font-medium text-[#111827]">
-                    Log in to access your account
-                </h1>
-            </div>
+  return (
+    <div className="w-full max-w-[420px] mx-auto space-y-8">
+      {/* Title */}
+      <div className="text-center">
+        <h1 className="text-3xl font-medium text-[#111827]">
+          Log in to access your account
+        </h1>
+      </div>
 
-            <div className="space-y-6">
-
-                {/* Email */}
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-[#111827]">
-                        Email address<span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="border-[#203E93]"
-                    />
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-[#111827]">
-                        Enter password<span className="text-red-500">*</span>
-                    </label>
-
-                    <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="border-[#203E93]"
-                        rightIcon={
-                            showPassword ? (
-                                <EyeOff
-                                    className="w-5 h-5 cursor-pointer"
-                                    onClick={() => setShowPassword(false)}
-                                />
-                            ) : (
-                                <Eye
-                                    className="w-5 h-5 cursor-pointer"
-                                    onClick={() => setShowPassword(true)}
-                                />
-                            )
-                        }
-                    />
-
-                    {/* Forgot password */}
-                    <div className="flex justify-end">
-                        <Link href="/forgot-password" className="text-sm text-[#0EA497] font-bold underline">
-                            Forgot password?
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Login button */}
-                <Button
-                    variant="primary"
-                    className="w-full h-14 text-base"
-                    onClick={handleLogin}
-                >
-                    Log in
-                </Button>
-
-            </div>
+      <form onSubmit={handleLogin} className="space-y-6">
+        {/* Email */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-[#111827]">
+            Username<span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="border-[#203E93]"
+            required
+          />
         </div>
-    )
+
+        {/* Password */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-[#111827]">
+            Enter password<span className="text-red-500">*</span>
+          </label>
+
+          <Input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border-[#203E93]"
+            required
+            rightIcon={
+              showPassword ? (
+                <EyeOff
+                  className="w-5 h-5 cursor-pointer text-gray-500"
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <Eye
+                  className="w-5 h-5 cursor-pointer text-gray-500"
+                  onClick={() => setShowPassword(true)}
+                />
+              )
+            }
+          />
+
+          {/* Error Message Display */}
+          {error && (
+            <p className="text-xs text-red-500 font-medium animate-in fade-in slide-in-from-top-1">
+              {error instanceof Error
+                ? error.message
+                : "Invalid credentials. Please try again."}
+            </p>
+          )}
+
+          {/* Forgot password */}
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-[#0EA497] font-bold underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </div>
+
+        {/* Login button */}
+        <Button
+          type="submit"
+          variant="primary"
+          className="w-full h-14 text-base font-bold bg-[#203E93] hover:bg-[#1a3275]"
+          disabled={isPending}
+        >
+          {isPending ? <Loader className="mr-2" /> : null}
+          {isPending ? "Please wait" : "Login"}
+        </Button>
+      </form>
+    </div>
+  );
 }
