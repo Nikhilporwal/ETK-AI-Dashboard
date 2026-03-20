@@ -18,11 +18,13 @@ export default function Home() {
 
         <div className="text-center space-y-4">
           <h1 className="text-3xl text-[#111827] tracking-tight">
-            Get started with <br />Globalwise
+            Get started with <br />
+            Globalwise
           </h1>
           <p className="text-[#6B7280] font-medium">
-            Already have an account? <Link href="/login" className="text-[#0EA497] font-bold underline">
-              Log in
+            Already have an account?{" "}
+            <Link href="/signup" className="text-[#0EA497] font-bold underline">
+              Sign up
             </Link>
           </p>
         </div>
@@ -55,14 +57,14 @@ export default function Home() {
 
           <div className="flex items-center gap-4 py-4">
             <div className="h-[1px] flex-1 bg-[#63687B]"></div>
-            <span className="text-sm text-[#63687B] font-medium">Or use email</span>
+            <span className="text-sm text-[#63687B] font-medium">
+              Or use email
+            </span>
             <div className="h-[1px] flex-1 bg-[#63687B]"></div>
           </div>
 
           <Button variant="primary" className="w-full" asChild>
-            <Link href="/signup">
-              Email address
-            </Link>
+            <Link href="/login">Login with Email</Link>
           </Button>
         </div>
       </div>

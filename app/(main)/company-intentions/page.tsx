@@ -8,16 +8,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const options = [
   "Trade Opportunities (D2C & B2C)",
-  "Trade Opportunities (D2C & B2C)",
-  "JV partnerships",
-  "JV partnerships",
-  "JV partnerships",
+  "JV Partnerships",
   "One-off Project",
-  "One-off Project",
-  "Licensing/Franchising",
-  "Licensing/Franchising",
-  "Licensing/Franchising",
-  "Investment/Equity",
+  "Licensing / Franchising",
+  "Investment / Equity",
+  "Subsidiary / Branch set1-up",
 ];
 
 export default function MarketEntryModelPage() {
@@ -33,7 +28,7 @@ export default function MarketEntryModelPage() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-12">
+    <div className="w-full max-w-2xl mx-auto space-y-12 py-4">
       <div className="space-y-4 text-center sm:text-left">
         <h1 className="text-3xl font-medium text-[#111827]">
           Select a market entry model

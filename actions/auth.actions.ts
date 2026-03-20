@@ -3,27 +3,18 @@
 import apiFetch from "@/lib/api/api";
 import { cookies } from "next/headers";
 
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface SignUpCredentials {
-  username: string;
+export interface AuthCredentials {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
+export interface AuthResponse {
   access_token: string;
-}
-
-export interface SignUpResponse {
   message: string;
 }
 
-export async function loginAction(credentials: LoginCredentials) {
-  const res = await apiFetch<LoginResponse>("/login", {
+export async function loginAction(credentials: AuthCredentials) {
+  const res = await apiFetch<AuthResponse>("/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
@@ -38,21 +29,30 @@ export async function loginAction(credentials: LoginCredentials) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7,
-    path: "/", // good practice
+    path: "/",
   });
 
   return res.data;
 }
 
-export async function signupAction(data: SignUpCredentials) {
-  const res = await apiFetch<SignUpResponse>("/signup", {
+export async function signupAction(data: AuthCredentials) {
+  const res = await apiFetch<AuthResponse>("/signup", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
-  if (!res.success) {
+  if (!res.success || !res.data?.access_token) {
     throw new Error(res.message || "Registration failed");
   }
+
+  const cookieStore = await cookies();
+
+  cookieStore.set("auth_token", res.data.access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
 
   return res.data;
 }

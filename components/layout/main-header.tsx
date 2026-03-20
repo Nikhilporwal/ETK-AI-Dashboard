@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 // Centralized step configuration
 const stepConfigs: Record<string, { step: number; total: number }> = {
   //   "/signup": { step: 1, total: 4 },
-  "/market-entry-model": { step: 2, total: 4 },
+  "/company-intentions": { step: 2, total: 4 },
   "/company-details": { step: 3, total: 4 },
   "/user-interests": { step: 4, total: 4 },
 

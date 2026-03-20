@@ -7,50 +7,63 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelect } from "@/components/ui/multi-select";
 
 const countryOptions = [
-  { id: "nigeria", label: "Nigeria" },
-  { id: "south-africa", label: "South Africa" },
-  { id: "togo", label: "Togo" },
+  { id: "Algeria", label: "Algeria" },
+  { id: "Angola", label: "Angola" },
+  { id: "Botswana", label: "Botswana" },
+  { id: "Cameroon", label: "Cameroon" },
+  { id: "Côte d'Ivoire", label: "Côte d'Ivoire" },
+  { id: "Egypt", label: "Egypt" },
+  { id: "Ethiopia", label: "Ethiopia" },
+  { id: "Ghana", label: "Ghana" },
+  { id: "Kenya", label: "Kenya" },
+  { id: "Libya", label: "Libya" },
+  { id: "Madagascar", label: "Madagascar" },
+  { id: "Mali", label: "Mali" },
+  { id: "Mauritius", label: "Mauritius" },
+  { id: "Morocco", label: "Morocco" },
+  { id: "Mozambique", label: "Mozambique" },
+  { id: "Namibia", label: "Namibia" },
+  { id: "Nigeria", label: "Nigeria" },
+  { id: "Rwanda", label: "Rwanda" },
+  { id: "Senegal", label: "Senegal" },
+  { id: "South Africa", label: "South Africa" },
+  { id: "Sudan", label: "Sudan" },
+  { id: "Tanzania", label: "Tanzania" },
+  { id: "Tunisia", label: "Tunisia" },
+  { id: "Uganda", label: "Uganda" },
+  { id: "Zimbabwe", label: "Zimbabwe" },
 ];
 
 const industryOptions = [
-  { id: "agriculture", label: "Agriculture" },
-  { id: "oil-gas-1", label: "Oil & Gas" },
-  { id: "oil-gas-2", label: "Oil & Gas" },
-  { id: "telecoms", label: "Telecoms" },
-  { id: "health", label: "Health" },
+  { id: "Agriculture", label: "Agriculture" },
+  { id: "Energy", label: "Energy" },
+  { id: "FMCG", label: "FMCG" },
+  { id: "Financial", label: "Financial" },
+  { id: "Generic", label: "Generic" },
+  { id: "Health & Pharma", label: "Health & Pharma" },
+  { id: "Service", label: "Service" },
+  { id: "Technology", label: "Technology" },
 ];
 
 export default function UserInterestsPage() {
   const router = useRouter();
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
 
-  // Default selections matching the mockup
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([
-    "nigeria",
-    "south-africa",
-    "togo",
-  ]);
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([
-    "agriculture",
-    "oil-gas-1",
-    "oil-gas-2",
-    "telecoms",
-    "health",
-  ]);
+  // const toggleCountry = (id: string) => {
+  //   setSelectedCountries((prev) =>
+  //     prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
+  //   );
+  // };
 
-  const toggleCountry = (id: string) => {
-    setSelectedCountries((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
-    );
-  };
-
-  const toggleIndustry = (id: string) => {
-    setSelectedIndustries((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
+  // const toggleIndustry = (id: string) => {
+  //   setSelectedIndustries((prev) =>
+  //     prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+  //   );
+  // };
 
   return (
-    <div className="relative w-full user-interest-identifier">
+    <div className="relative w-full user-interest-identifier p-6">
       {/* Main Content Area - Aligned to Left */}
       <div className="w-full max-w-[540px] space-y-10 animate-in fade-in slide-in-from-left-6 duration-700">
         <h1 className="text-4xl font-medium text-[#111827] leading-tight">
@@ -72,7 +85,7 @@ export default function UserInterestsPage() {
               placeholder="Select Country"
             />
 
-            {selectedCountries.length > 0 && (
+            {/* {selectedCountries.length > 0 && (
               <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
                 {countryOptions
                   .filter((country) => selectedCountries.includes(country.id))
@@ -95,7 +108,7 @@ export default function UserInterestsPage() {
                     </div>
                   ))}
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Industry Selection */}
@@ -110,7 +123,7 @@ export default function UserInterestsPage() {
               placeholder="Select Industry"
             />
 
-            {selectedIndustries.length > 0 && (
+            {/* {selectedIndustries.length > 0 && (
               <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
                 {industryOptions
                   .filter((industry) =>
@@ -135,7 +148,7 @@ export default function UserInterestsPage() {
                     </div>
                   ))}
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

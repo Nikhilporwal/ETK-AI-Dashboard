@@ -9,14 +9,8 @@ export default function CompanyDetailsPage() {
   const router = useRouter();
   const [profile, setProfile] = useState("");
 
-  const handleContinue = () => {
-    // Step mapping to 4 will follow
-    // For now navigation placeholder
-    router.push("/user-interests");
-  };
-
   return (
-    <div className="w-full max-w-[600px] mx-auto space-y-8">
+    <div className="w-full max-w-[600px] mx-auto space-y-8 py-4">
       <div className="space-y-3">
         <h1 className="text-3xl font-medium text-[#111827]">
           Tell us about your company
@@ -47,8 +41,8 @@ export default function CompanyDetailsPage() {
         <Button
           variant="primary"
           className="w-full sm:flex-1 h-14"
-          disabled={!profile.trim()}
-          onClick={handleContinue}
+          disabled={!profile.trim() || profile.length < 70}
+          onClick={() => router.push("/user-interests")}
         >
           Continue
         </Button>

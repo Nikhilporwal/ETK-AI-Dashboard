@@ -13,21 +13,21 @@ import { Loader } from "@/components/common/Loader";
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const { mutate, isPending, error } = useMutation({
     mutationFn: loginAction,
     onSuccess: () => {
-      router.push("/market-entry-model");
+      router.push("/company-intentions");
       router.refresh();
     },
   });
 
   const handleLogin = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!username || !password) return;
-    mutate({ username, password });
+    if (!email || !password) return;
+    mutate({ email, password });
   };
 
   return (
@@ -43,13 +43,13 @@ export default function LoginPage() {
         {/* Email */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#111827]">
-            Username<span className="text-red-500">*</span>
+            Email email<span className="text-red-500">*</span>
           </label>
           <Input
             type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="border-[#203E93]"
             required
           />

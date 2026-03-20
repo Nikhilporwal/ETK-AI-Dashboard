@@ -16,7 +16,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState(""); // Added email state
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
 
   // TanStack Mutation for Signup
   const { mutate, isPending, error } = useMutation({
@@ -47,7 +46,6 @@ export default function SignupPage() {
     if (passedCount < 4 || !email) return;
 
     mutate({
-      username: email.split("@")[0],
       email,
       password,
     });
@@ -76,24 +74,10 @@ export default function SignupPage() {
       className="w-full max-w-[500px] mx-auto space-y-8"
     >
       <div className="space-y-6">
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-[#111827]">
-            Enter your username?<span className="text-red-500">*</span>
-          </label>
-          <Input
-            placeholder="Enter your username"
-            type="text"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="border-[#203E93]"
-          />
-        </div>
-
         {/* Email Field */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#111827]">
-            What`&apos;`s your email?<span className="text-red-500">*</span>
+            What&apos;s your email?<span className="text-red-500">*</span>
           </label>
           <Input
             placeholder="Enter your email"
