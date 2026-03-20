@@ -15,7 +15,9 @@ export interface AuthResponse {
 
 export type ActionResponse = AuthResponse | { error: string };
 
-export async function loginAction(credentials: AuthCredentials): Promise<ActionResponse> {
+export async function loginAction(
+  credentials: AuthCredentials,
+): Promise<ActionResponse> {
   const res = await apiFetch<AuthResponse>("/login", {
     method: "POST",
     body: JSON.stringify(credentials),
@@ -37,11 +39,15 @@ export async function loginAction(credentials: AuthCredentials): Promise<ActionR
   return res.data;
 }
 
-export async function signupAction(data: AuthCredentials): Promise<ActionResponse> {
+export async function signupAction(
+  data: AuthCredentials,
+): Promise<ActionResponse> {
+  console.log("res");
   const res = await apiFetch<AuthResponse>("/signup", {
     method: "POST",
     body: JSON.stringify(data),
   });
+  console.log(res);
 
   if (!res.success || !res.data?.access_token) {
     return { error: res.message || "Registration failed" };

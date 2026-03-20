@@ -26,6 +26,8 @@ export default async function apiFetch<T>(
 
   const json = await response.json().catch(() => ({}));
 
+  console.log("json", json);
+
   if (!response.ok) {
     return {
       data: {} as T,
