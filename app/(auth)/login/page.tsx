@@ -17,7 +17,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: loginAction,
+    mutationFn: async (vars: any) => {
+      const res = await loginAction(vars);
+      if (res && "error" in res) throw new Error(res.error);
+      return res;
+    },
     onSuccess: () => {
       router.push("/company-intentions");
       router.refresh();

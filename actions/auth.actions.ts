@@ -13,14 +13,16 @@ export interface AuthResponse {
   message: string;
 }
 
-export async function loginAction(credentials: AuthCredentials) {
+export type ActionResponse = AuthResponse | { error: string };
+
+export async function loginAction(credentials: AuthCredentials): Promise<ActionResponse> {
   const res = await apiFetch<AuthResponse>("/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
 
   if (!res.success || !res.data?.access_token) {
-    throw new Error(res.message || "Login failed");
+    return { error: res.message || "Login failed" };
   }
 
   const cookieStore = await cookies();
@@ -35,14 +37,14 @@ export async function loginAction(credentials: AuthCredentials) {
   return res.data;
 }
 
-export async function signupAction(data: AuthCredentials) {
+export async function signupAction(data: AuthCredentials): Promise<ActionResponse> {
   const res = await apiFetch<AuthResponse>("/signup", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
   if (!res.success || !res.data?.access_token) {
-    throw new Error(res.message || "Registration failed");
+    return { error: res.message || "Registration failed" };
   }
 
   const cookieStore = await cookies();

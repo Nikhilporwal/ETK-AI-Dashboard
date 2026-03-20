@@ -19,7 +19,11 @@ export default function SignupPage() {
 
   // TanStack Mutation for Signup
   const { mutate, isPending, error } = useMutation({
-    mutationFn: signupAction,
+    mutationFn: async (vars: any) => {
+      const res = await signupAction(vars);
+      if (res && "error" in res) throw new Error(res.error);
+      return res;
+    },
     onSuccess: () => {
       router.push("/maps");
       router.refresh();
