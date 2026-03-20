@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import apiFetch from "../api/api";
 
 export type JobStatus = "pending" | "processing" | "completed" | "failed";
@@ -9,31 +9,44 @@ export interface JobStatusResponse {
 }
 
 export const useJobStatus = (jobId: string, isEnabled: boolean) => {
-  return useQuery<JobStatusResponse>({
-    queryKey: ["jobStatus", jobId],
+  const [data, setData] = useState<JobStatusResponse | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-    queryFn: async () => {
-      const res = await apiFetch<JobStatusResponse>(
-        `/analysis/status/${jobId}`,
-      );
+  useEffect(() => {
+    if (!isEnabled || !jobId) return;
 
-      if (!res.success) {
-        throw new Error(res.message);
+    let isMounted = true;
+    let timer: NodeJS.Timeout;
+
+    const fetchStatus = async () => {
+      try {
+        setIsLoading(true);
+        const res = await apiFetch<JobStatusResponse>(`/analysis/status/${jobId}`);
+
+        if (!res.success) throw new Error(res.message);
+        if (isMounted) {
+          setData(res.data);
+          setError(null);
+
+          if (res.data.status !== "completed" && res.data.status !== "failed") {
+            timer = setTimeout(fetchStatus, 3000);
+          }
+        }
+      } catch (err: any) {
+        if (isMounted) setError(err);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
+    };
 
-      return res.data;
-    },
+    fetchStatus();
 
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
+    return () => {
+      isMounted = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [jobId, isEnabled]);
 
-      if (status === "completed" || status === "failed") {
-        return false;
-      }
-
-      return 3000;
-    },
-
-    enabled: Boolean(isEnabled && jobId),
-  });
+  return { data, isLoading, error };
 };

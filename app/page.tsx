@@ -22,7 +22,7 @@ export default function Home() {
             Globalwise
           </h1>
           <p className="text-[#6B7280] font-medium">
-            Already have an account?{" "}
+            Don't have an account?{" "}
             <Link href="/signup" className="text-[#0EA497] font-bold underline">
               Sign up
             </Link>
