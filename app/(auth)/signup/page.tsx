@@ -47,20 +47,16 @@ export default function SignupPage() {
     showLoader("Creating your account...");
 
     try {
-      console.log("Starting signup action on client side...");
       const result = await signupAction({ email, password });
-      console.log("Client-side result received:", result);
 
       if (!result.success) {
         toast.error(result.error);
         return;
       }
 
-      console.log("Navigating to /company-intentions...");
-      toast.success(result.data.message || "Account created successfully");
+      toast.success(result.data.data.message || "Account created successfully");
       router.push("/company-intentions");
     } catch (error) {
-      console.error("Signup Catch Block Error:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       hideLoader();

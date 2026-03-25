@@ -18,27 +18,23 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!email || !password) return;
 
     showLoader("Logging in...");
 
     try {
-      console.log("Starting login action on client side...");
       const result = await loginAction({ email, password });
-      console.log("Client-side result received:", result);
 
       if (!result.success) {
         toast.error(result.error);
         return;
       }
 
-      console.log("Navigating to /company-intentions...");
-      toast.success(result.data.message || "Logged in successfully!");
+      toast.success(result.data.data.message || "Logged in successfully!");
       router.push("/company-intentions");
     } catch (error) {
-      console.error("Login Catch Block Error:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       hideLoader();

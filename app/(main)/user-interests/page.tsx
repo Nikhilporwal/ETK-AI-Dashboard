@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { useGlobalContext } from "@/context/JobContext";
+import {
+  getJobIdAction,
+  pollingAction,
+  saveUserInterestsAction,
+} from "@/actions/maps.actions";
+import toast from "react-hot-toast";
 
 const countryOptions = [
   { id: "Algeria", label: "Algeria" },
@@ -47,8 +52,81 @@ const industryOptions = [
 
 export default function UserInterestsPage() {
   const router = useRouter();
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const { formData, updateData, showLoader, hideLoader, setPollingData } =
+    useGlobalContext();
+
+  const handlePolling = async (job_id: string) => {
+    if (!job_id) {
+      toast.error("Job ID missing");
+      return;
+    }
+
+    try {
+      let maxAttempt = 0;
+
+      while (maxAttempt < 60) {
+        const result = await pollingAction(job_id);
+
+        if (!result.success) {
+          hideLoader();
+          toast.error(result.error);
+          break;
+        }
+
+        if (result.data.state === "error") {
+          hideLoader();
+          toast.error(result.data.message);
+          break;
+        }
+
+        if (result.data.state === "done") {
+          hideLoader();
+          setPollingData(result.data);
+          toast.success(result.data.message);
+          router.push("/maps");
+          break;
+        }
+
+        await new Promise((res) => setTimeout(res, 1000));
+
+        maxAttempt++;
+      }
+
+      hideLoader();
+      toast.error("Polling timed out");
+    } catch (e) {
+      hideLoader();
+    }
+  };
+
+  const handleGetJobId = async () => {
+    if (formData.countries.length === 0 || formData.industries.length === 0) {
+      return;
+    }
+
+    showLoader();
+
+    try {
+      const [result1, result2] = await Promise.all([
+        getJobIdAction(formData),
+        saveUserInterestsAction(formData),
+      ]);
+
+      if (!result1.success) {
+        toast.error(result1.error);
+        return;
+      }
+
+      if (!result2.success) {
+        toast.error(result2.error);
+        return;
+      }
+
+      handlePolling(result1.data.job_id);
+    } catch (e) {
+      hideLoader();
+    }
+  };
 
   // const toggleCountry = (id: string) => {
   //   setSelectedCountries((prev) =>
@@ -80,8 +158,8 @@ export default function UserInterestsPage() {
             </label>
             <MultiSelect
               options={countryOptions}
-              selected={selectedCountries}
-              onChange={setSelectedCountries}
+              selected={formData.countries}
+              onChange={(value) => updateData("countries", value)}
               placeholder="Select Country"
             />
 
@@ -118,8 +196,8 @@ export default function UserInterestsPage() {
             </label>
             <MultiSelect
               options={industryOptions}
-              selected={selectedIndustries}
-              onChange={setSelectedIndustries}
+              selected={formData.industries}
+              onChange={(value) => updateData("industries", value)}
               placeholder="Select Industry"
             />
 
@@ -165,9 +243,10 @@ export default function UserInterestsPage() {
             variant="primary"
             className="w-full"
             disabled={
-              selectedCountries.length === 0 || selectedIndustries.length === 0
+              formData.countries.length === 0 ||
+              formData.industries.length === 0
             }
-            onClick={() => router.push("/maps")}
+            onClick={handleGetJobId}
           >
             Continue
           </Button>

@@ -1,9 +1,26 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useRef, useState } from "react";
+
+// Simple visual-only checkbox
+function CheckBox({ checked }: { checked: boolean }) {
+  return (
+    <div
+      className={cn(
+        "h-4 w-4 shrink-0 rounded-[4px] border-2 transition-all",
+        checked
+          ? "bg-[#203D8E] border-[#203D8E] text-white"
+          : "border-[#A5B4FC]/50 bg-white",
+      )}
+    >
+      {checked && (
+        <Check className="h-full w-full p-[2px] stroke-[4] text-white" />
+      )}
+    </div>
+  );
+}
 
 export interface Option {
   id: string;
@@ -63,6 +80,7 @@ export function MultiSelect({
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
@@ -72,6 +90,7 @@ export function MultiSelect({
       e.preventDefault();
       e.stopPropagation();
     }
+
     if (id === ALL_ID) {
       onChange(
         selected.length === options.length ? [] : options.map((opt) => opt.id),
@@ -125,10 +144,7 @@ export function MultiSelect({
             onClick={(e) => toggleOption(ALL_ID, e)}
             className="flex items-center space-x-2.5 px-4 py-3 hover:bg-slate-50 cursor-pointer border-b"
           >
-            <Checkbox
-              checked={selected.length === options.length}
-              className="pointer-events-none"
-            />
+            <CheckBox checked={selected.length === options.length} />
             <span className="text-sm font-semibold text-[#111827]">
               Select All
             </span>
@@ -140,10 +156,7 @@ export function MultiSelect({
               onClick={(e) => toggleOption(option.id, e)}
               className="flex items-center space-x-2.5 px-4 py-3 hover:bg-slate-50 cursor-pointer"
             >
-              <Checkbox
-                checked={selected.includes(option.id)}
-                className="pointer-events-none"
-              />
+              <CheckBox checked={selected.includes(option.id)} />
               <span className="text-sm font-semibold text-[#111827]">
                 {option.label}
               </span>

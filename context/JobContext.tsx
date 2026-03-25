@@ -2,9 +2,10 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
+import { PollingResult } from "@/actions/maps.actions";
 
 // 1. Define Form Shape (Preserved from old JobContext)
-type JobFormData = {
+export type JobFormData = {
   company_profile: string;
   countries: string[];
   company_intentions: string[];
@@ -13,11 +14,12 @@ type JobFormData = {
 
 // 2. Main Context Type
 type GlobalContextType = {
-  // Form Actions
   formData: JobFormData;
   updateData: <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => void;
 
-  // Loader Actions
+  pollingData: PollingResult | null;
+  setPollingData: (data: PollingResult | null) => void;
+
   isLoading: boolean;
   showLoader: (message?: string) => void;
   hideLoader: () => void;
@@ -43,6 +45,7 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     company_intentions: [],
     industries: [],
   });
+  const [pollingData, setPollingData] = useState<PollingResult | null>(null);
 
   const updateData = <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -67,6 +70,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
       value={{
         formData,
         updateData,
+        pollingData,
+        setPollingData,
         isLoading,
         showLoader,
         hideLoader,

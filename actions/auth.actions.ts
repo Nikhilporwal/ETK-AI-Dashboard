@@ -9,8 +9,10 @@ export interface AuthCredentials {
 }
 
 export interface AuthResponse {
-  access_token: string;
-  message: string;
+  data: {
+    access_token: string;
+    message: string;
+  }
 }
 
 // Discriminated union — success or a typed error, never a thrown exception
@@ -38,16 +40,13 @@ export async function loginAction(
     body: JSON.stringify(credentials),
   });
 
-  console.log("Login API Result:", res);
-
-  // if (!res.success || !res.data?.access_token) {
-  //   console.error("Login failed or token missing:", res.message);
-  //   return { success: false, error: res.message };
-  // }
+  if (!res.success || !res.data?.data?.access_token) {
+    console.error("Login failed or token missing:", res.message);
+    return { success: false, error: res.message };
+  }
 
   try {
-    await setAuthCookie(res.data.access_token);
-    console.log("Login Cookie set successfully");
+    await setAuthCookie(res.data?.data?.access_token);
   } catch (error) {
     console.error("Error setting login cookie:", error);
   }
@@ -62,16 +61,14 @@ export async function signupAction(
     method: "POST",
     body: JSON.stringify(credentials),
   });
-  console.log("API Result in Server Action (res):", res);
 
-  // if (!res.success || !res.data?.access_token) {
-  //   console.error("Signup failed or token missing:", res.message);
-  //   return { success: false, error: res.message };
-  // }
+  if (!res.success || !res.data?.data?.access_token) {
+    console.error("Signup failed or token missing:", res.message);
+    return { success: false, error: res.message };
+  }
 
   try {
-    await setAuthCookie(res.data.access_token);
-    console.log("Cookie set successfully");
+    await setAuthCookie(res.data.data.access_token);
   } catch (error) {
     console.error("Error setting cookie:", error);
   }

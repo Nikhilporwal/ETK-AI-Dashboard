@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useGlobalContext } from "@/context/JobContext";
 
 const options = [
   "Trade Opportunities (D2C & B2C)",
@@ -17,14 +18,16 @@ const options = [
 
 export default function MarketEntryModelPage() {
   const router = useRouter();
-  const [selectedStates, setSelectedStates] = useState<boolean[]>(
-    new Array(options.length).fill(false),
-  );
+  const { formData, updateData } = useGlobalContext();
 
-  const toggleOption = (idx: number) => {
-    const nextSelections = [...selectedStates];
-    nextSelections[idx] = !nextSelections[idx];
-    setSelectedStates(nextSelections);
+  const toggleOption = (option: string) => {
+    let val;
+    if (formData.company_intentions.includes(option)) {
+      val = formData.company_intentions.filter((item) => item !== option);
+    } else {
+      val = [...formData.company_intentions, option];
+    }
+    updateData("company_intentions", val);
   };
 
   return (
@@ -47,30 +50,33 @@ export default function MarketEntryModelPage() {
         </p>
 
         <div className="flex flex-wrap gap-3">
-          {options.map((option, idx) => (
-            <div
-              key={idx}
-              onClick={() => toggleOption(idx)}
-              className={`
+          {options.map((option, idx) => {
+            const isSelected = formData.company_intentions.includes(option);
+            return (
+              <div
+                key={idx}
+                onClick={() => toggleOption(option)}
+                className={`
                 flex items-center gap-3 px-6 h-14 bg-white border-2 rounded-[var(--radius-brand)] transition-all cursor-pointer select-none
                 ${
-                  selectedStates[idx]
+                  isSelected
                     ? "border-[#203D8E] bg-[#E8EEFB]/30 shadow-sm"
                     : "border-[#A5B4FC]/20 hover:border-[#A5B4FC]/50 hover:bg-slate-50"
                 }
               `}
-            >
-              <Checkbox
-                checked={selectedStates[idx]}
-                onCheckedChange={() => toggleOption(idx)}
-              />
-              <span
-                className={`text-sm font-semibold transition-colors ${selectedStates[idx] ? "text-[#203D8E]" : "text-[#4B5563]"}`}
               >
-                {option}
-              </span>
-            </div>
-          ))}
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleOption(option)}
+                />
+                <span
+                  className={`text-sm font-semibold transition-colors ${isSelected ? "text-[#203D8E]" : "text-[#4B5563]"}`}
+                >
+                  {option}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -78,7 +84,7 @@ export default function MarketEntryModelPage() {
         <Button
           variant="primary"
           className="w-full sm:flex-1"
-          disabled={!selectedStates.some((s) => s)}
+          disabled={formData.company_intentions.length === 0}
           onClick={() => router.push("/company-details")}
         >
           Continue

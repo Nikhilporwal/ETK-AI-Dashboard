@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useGlobalContext } from "@/context/JobContext";
 
 export default function CompanyDetailsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState("");
+  const { formData, updateData } = useGlobalContext();
 
   return (
     <div className="w-full max-w-[600px] mx-auto space-y-8 py-4">
@@ -24,8 +25,8 @@ export default function CompanyDetailsPage() {
         {/* Decorative border if needed or direct component usage */}
         <Textarea
           placeholder={"Explain about your company"}
-          value={profile}
-          onChange={(e) => setProfile(e.target.value)}
+          value={formData.company_profile}
+          onChange={(e) => updateData("company_profile", e.target.value)}
           className="border-[#203D8E]/40"
         />
       </div>
@@ -41,7 +42,10 @@ export default function CompanyDetailsPage() {
         <Button
           variant="primary"
           className="w-full sm:flex-1 h-14"
-          disabled={!profile.trim() || profile.length < 70}
+          disabled={
+            !formData.company_profile.trim() ||
+            formData.company_profile.length < 70
+          }
           onClick={() => router.push("/user-interests")}
         >
           Continue
