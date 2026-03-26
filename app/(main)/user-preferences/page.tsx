@@ -52,7 +52,7 @@ const industryOptions = [
 
 export default function UserInterestsPage() {
   const router = useRouter();
-  const { formData, updateData, showLoader, hideLoader, setPollingData } =
+  const { formData, updateData, showLoader, hideLoader, setPollingData, userDetails } =
     useGlobalContext();
 
   const handlePolling = async (job_id: string) => {
@@ -84,7 +84,7 @@ export default function UserInterestsPage() {
           setPollingData(result.data);
           toast.success(result.data.message);
           router.push("/maps");
-          return;   
+          return;
         }
 
         await new Promise((res) => setTimeout(res, 1000));
@@ -105,12 +105,12 @@ export default function UserInterestsPage() {
       return;
     }
 
-    showLoader();
+    showLoader("Generating heatmaps...");
 
     try {
       const [result1, result2] = await Promise.all([
         getJobIdAction(formData),
-        saveUserInterestsAction(formData),
+        saveUserInterestsAction({ ...formData, user_id: userDetails?.user_id }),
       ]);
 
       if (!result1.success) {
@@ -142,7 +142,7 @@ export default function UserInterestsPage() {
   // };
 
   return (
-    <div className="relative w-full user-interest-identifier p-6">
+    <div className="relative w-full user-preferences-identifier p-6">
       {/* Main Content Area - Aligned to Left */}
       <div className="w-full max-w-[540px] space-y-10 animate-in fade-in slide-in-from-left-6 duration-700">
         <h1 className="text-4xl font-medium text-[#111827] leading-tight">

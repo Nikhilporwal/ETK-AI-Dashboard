@@ -8,14 +8,12 @@ export interface AuthCredentials {
   password: string;
 }
 
-export interface AuthResponse {
-  data: {
-    access_token: string;
-    message: string;
-  }
-}
+export type AuthData = {
+  access_token: string;
+  user_id: string;
+};
 
-// Discriminated union — success or a typed error, never a thrown exception
+// Discriminated union
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
@@ -23,7 +21,7 @@ export type ActionResult<T> =
 const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  maxAge: 60 * 60 * 24 * 7, // 7 days
+  maxAge: 60 * 60 * 24 * 7,
   path: "/",
 } as const;
 
@@ -34,19 +32,19 @@ async function setAuthCookie(token: string) {
 
 export async function loginAction(
   credentials: AuthCredentials,
-): Promise<ActionResult<AuthResponse>> {
-  const res = await apiFetch<AuthResponse>("/login", {
+): Promise<ActionResult<AuthData>> {
+
+  const res = await apiFetch<AuthData>("/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
 
-  if (!res.success || !res.data?.data?.access_token) {
-    console.error("Login failed or token missing:", res.message);
+  if (!res.success || !res.data?.access_token) {
     return { success: false, error: res.message };
   }
 
   try {
-    await setAuthCookie(res.data?.data?.access_token);
+    await setAuthCookie(res.data.access_token);
   } catch (error) {
     console.error("Error setting login cookie:", error);
   }
@@ -56,19 +54,19 @@ export async function loginAction(
 
 export async function signupAction(
   credentials: AuthCredentials,
-): Promise<ActionResult<AuthResponse>> {
-  const res = await apiFetch<AuthResponse>("/signup", {
+): Promise<ActionResult<AuthData>> {
+
+  const res = await apiFetch<AuthData>("/signup", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
 
-  if (!res.success || !res.data?.data?.access_token) {
-    console.error("Signup failed or token missing:", res.message);
+  if (!res.success || !res.data?.access_token) {
     return { success: false, error: res.message };
   }
 
   try {
-    await setAuthCookie(res.data.data.access_token);
+    await setAuthCookie(res.data.access_token);
   } catch (error) {
     console.error("Error setting cookie:", error);
   }

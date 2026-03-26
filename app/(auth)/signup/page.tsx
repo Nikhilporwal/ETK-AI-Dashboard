@@ -31,7 +31,7 @@ function getStrengthMeta(passedCount: number) {
 
 export default function SignupPage() {
   const router = useRouter();
-  const { showLoader, hideLoader, isLoading } = useGlobalContext();
+  const { showLoader, hideLoader, isLoading, setUserDetails } = useGlobalContext();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -54,8 +54,10 @@ export default function SignupPage() {
         return;
       }
 
-      toast.success(result.data.data.message || "Account created successfully");
-      router.push("/company-intentions");
+      setUserDetails(result.data);
+      toast.success("Account created successfully!");
+
+      router.push(`/company-intentions/${result.data.user_id}`);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -66,7 +68,6 @@ export default function SignupPage() {
   return (
     <form onSubmit={handleSignup} className="w-full max-w-[500px] mx-auto space-y-8">
       <div className="space-y-6">
-
         {/* Email */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#111827]">

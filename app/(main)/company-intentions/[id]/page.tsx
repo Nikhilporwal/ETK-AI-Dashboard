@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGlobalContext } from "@/context/JobContext";
+import { getUserDataAction } from "@/actions/maps.actions";
+import toast from "react-hot-toast";
 
 const options = [
   "Trade Opportunities (D2C & B2C)",
@@ -18,16 +20,46 @@ const options = [
 
 export default function MarketEntryModelPage() {
   const router = useRouter();
-  const { formData, updateData } = useGlobalContext();
+  const params = useParams<{ id: string }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const { formData, updateData, showLoader, hideLoader, setFormData } = useGlobalContext();
+
+  useEffect(() => {
+    if (!id) return;
+
+    const getUserData = async () => {
+      showLoader("Loading user data...");
+      try {
+        const result = await getUserDataAction(id);
+
+        if (!result.success) {
+          toast.error(result.error);
+          return;
+        }
+
+        const profile = result.data?.profile;
+        if (!profile) return;
+
+        setFormData(profile)
+
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to fetch user data.");
+      } finally {
+        hideLoader();
+      }
+    };
+
+    getUserData();
+  }, [id]);
 
   const toggleOption = (option: string) => {
-    let val;
-    if (formData.company_intentions.includes(option)) {
-      val = formData.company_intentions.filter((item) => item !== option);
-    } else {
-      val = [...formData.company_intentions, option];
-    }
-    updateData("company_intentions", val);
+    const current = formData.company_intentions ?? [];
+    const updated = current.includes(option)
+      ? current.filter((item) => item !== option)
+      : [...current, option];
+
+    updateData("company_intentions", updated);
   };
 
   return (
@@ -51,19 +83,19 @@ export default function MarketEntryModelPage() {
 
         <div className="flex flex-wrap gap-3">
           {options.map((option, idx) => {
-            const isSelected = formData.company_intentions.includes(option);
+            const isSelected = formData.company_intentions?.includes(option) ?? false;
+
             return (
               <div
                 key={idx}
                 onClick={() => toggleOption(option)}
                 className={`
-                flex items-center gap-3 px-6 h-14 bg-white border-2 rounded-[var(--radius-brand)] transition-all cursor-pointer select-none
-                ${
-                  isSelected
+                  flex items-center gap-3 px-6 h-14 bg-white border-2 rounded-[var(--radius-brand)] transition-all cursor-pointer select-none
+                  ${isSelected
                     ? "border-[#203D8E] bg-[#E8EEFB]/30 shadow-sm"
                     : "border-[#A5B4FC]/20 hover:border-[#A5B4FC]/50 hover:bg-slate-50"
-                }
-              `}
+                  }
+                `}
               >
                 <Checkbox
                   checked={isSelected}
@@ -84,7 +116,7 @@ export default function MarketEntryModelPage() {
         <Button
           variant="primary"
           className="w-full sm:flex-1"
-          disabled={formData.company_intentions.length === 0}
+          disabled={(formData.company_intentions?.length ?? 0) === 0}
           onClick={() => router.push("/company-details")}
         >
           Continue

@@ -1,43 +1,44 @@
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
-}
-
 export default async function apiFetch<T>(
   url: string,
   options: RequestInit = {},
   baseUrl?: string
-): Promise<ApiResponse<T>> {
-
+): Promise<{ data: T; message: string; success: boolean }> {
   const FINAL_BASE_URL = baseUrl || process.env.BACKEND_BASE_URL;
 
-  if (!FINAL_BASE_URL) {
-    throw new Error("API Base URL is not configured.");
-  }
+  if (!FINAL_BASE_URL) throw new Error("API Base URL is not configured.");
 
-  const response = await fetch(`${FINAL_BASE_URL}${url}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...((options.headers as Record<string, string>) || {}),
-    },
-  });
+  try {
+    const response = await fetch(`${FINAL_BASE_URL}${url}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...((options.headers as Record<string, string>) || {}),
+      },
+    });
 
-  const json = await response.json().catch(() => ({}));
-  console.log("json:", json);
+    const json = await response.json().catch(() => ({}));
 
-  if (!response.ok) {
+    // Don't check success for passionlabs API
+    if (FINAL_BASE_URL.includes("https://etk-api.passionlabs.ai")) {
+      return {
+        data: json as T,
+        message: json?.message || "Success",
+        success: response.ok,
+      };
+    }
+
+    const isSuccess = response.ok && (typeof json.success === "boolean" ? json.success : true);
+
+    return {
+      data: (json.data ?? {}) as T,
+      message: json?.message || (isSuccess ? "Success" : "Something went wrong"),
+      success: isSuccess,
+    };
+  } catch (error) {
     return {
       data: {} as T,
-      message: json?.message || response.statusText || "Something went wrong.",
+      message: "Network error. Please try again.",
       success: false,
     };
   }
-
-  return {
-    data: json as T,
-    message: json?.message ?? "Success",
-    success: true,
-  };
 }

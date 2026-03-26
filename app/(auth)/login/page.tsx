@@ -12,13 +12,13 @@ import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { showLoader, hideLoader, isLoading } = useGlobalContext();
+  const { showLoader, hideLoader, isLoading, setUserDetails } = useGlobalContext();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e: React.SubmitEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
 
@@ -32,8 +32,11 @@ export default function LoginPage() {
         return;
       }
 
-      toast.success(result.data.data.message || "Logged in successfully!");
-      router.push("/company-intentions");
+      // ✅ corrected: directly use result.data (AuthData)
+      setUserDetails(result.data);
+      toast.success("Logged in successfully!");
+
+      router.push(`/company-intentions/${result.data.user_id}`);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     } finally {

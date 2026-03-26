@@ -46,7 +46,7 @@ export default function CompanyDetailsPage() {
             !formData.company_profile.trim() ||
             formData.company_profile.length < 70
           }
-          onClick={() => router.push("/user-interests")}
+          onClick={() => router.push("/user-preferences")}
         >
           Continue
         </Button>

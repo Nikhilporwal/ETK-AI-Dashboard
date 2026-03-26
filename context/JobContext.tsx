@@ -6,19 +6,29 @@ import { PollingResult } from "@/actions/maps.actions";
 
 // 1. Define Form Shape (Preserved from old JobContext)
 export type JobFormData = {
+  user_id?: string;
   company_profile: string;
   countries: string[];
   company_intentions: string[];
   industries: string[];
 };
 
+export type UserDetails = {
+  user_id: string;
+  access_token: string;
+};
+
 // 2. Main Context Type
 type GlobalContextType = {
   formData: JobFormData;
   updateData: <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => void;
+  setFormData: (data: JobFormData) => void;
 
   pollingData: PollingResult | null;
   setPollingData: (data: PollingResult | null) => void;
+
+  userDetails: UserDetails | null;
+  setUserDetails: (data: UserDetails | null) => void;
 
   isLoading: boolean;
   showLoader: (message?: string) => void;
@@ -40,12 +50,13 @@ export const useGlobalContext = () => {
 // 5. Provider Component
 export default function GlobalProvider({ children }: { children: ReactNode }) {
   const [formData, setFormData] = useState<JobFormData>({
-    company_profile: "An agriculture company supports farming with seeds, tools, and sustainable solutions.",
-    countries: ["Algeria", "Botswana"],
-    company_intentions: ["Market Entry"],
-    industries: ["Agriculture"],
+    company_profile: "",
+    countries: [],
+    company_intentions: [],
+    industries: [],
   });
   const [pollingData, setPollingData] = useState<PollingResult | null>(null);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   const updateData = <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -75,6 +86,9 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
         isLoading,
         showLoader,
         hideLoader,
+        userDetails,
+        setUserDetails,
+        setFormData
       }}
     >
       {/* Global Loader Overlay */}

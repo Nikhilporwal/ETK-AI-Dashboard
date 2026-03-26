@@ -73,7 +73,7 @@
   background-repeat: no-repeat;
 }
 
-.auth-wrapper:has(.user-interest-identifier) {
+.auth-wrapper:has(.user-preferences-identifier) {
   background-image: var(--image-auth-map) !important;
 }
 

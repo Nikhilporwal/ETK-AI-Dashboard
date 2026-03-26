@@ -9,7 +9,7 @@ const stepConfigs: Record<string, { step: number; total: number }> = {
   //   "/signup": { step: 1, total: 4 },
   "/company-intentions": { step: 2, total: 4 },
   "/company-details": { step: 3, total: 4 },
-  "/user-interests": { step: 4, total: 4 },
+  "/user-preferences": { step: 4, total: 4 },
 
   //   "/forgot-password": { step: 1, total: 3 },
   //   "/verify-otp": { step: 2, total: 3 },

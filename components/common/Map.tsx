@@ -69,8 +69,6 @@ const countryCoordinates: Record<string, { lat: number; lng: number }> = {
   Zimbabwe: { lat: -19.0154, lng: 29.1549 },
 };
 
-
-
 export default function MyMap() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -82,22 +80,67 @@ export default function MyMap() {
   const [mapData, setMapData] = useState<any>(null);
 
   const iso2ToIso3: Record<string, string> = {
-    DZ: "DZA", AO: "AOI", BW: "BWA", BI: "BDI", CM: "CMR",
-    CV: "CPV", CF: "CAF", TD: "TCD", KM: "COM", CD: "COD",
-    CG: "COG", CI: "CIV", DJ: "DJI", EG: "EGY", GQ: "GNQ",
-    ER: "ERI", SZ: "SWZ", ET: "ETH", GA: "GAB", GM: "GMB",
-    GH: "GHA", GN: "GIN", GW: "GNB", KE: "KEN", LS: "LSO",
-    LR: "LBR", LY: "LBY", MG: "MDG", MW: "MWI", ML: "MLI",
-    MR: "MRT", MU: "MUS", YT: "MYT", MA: "MAR", MZ: "MOZ",
-    NA: "NAM", NE: "NER", NG: "NGA", RE: "REU", RW: "RWA",
-    ST: "STP", SN: "SEN", SC: "SYC", SL: "SLE", SO: "SOM",
-    ZA: "ZAF", SS: "SSD", SD: "SDN", TZ: "TZA", TG: "TGO",
-    TN: "TUN", UG: "UGA", EH: "ESH", ZM: "ZMB", ZW: "ZWE"
+    DZ: "DZA",
+    AO: "AGO",
+    BW: "BWA",
+    BI: "BDI",
+    CM: "CMR",
+    CV: "CPV",
+    CF: "CAF",
+    TD: "TCD",
+    KM: "COM",
+    CD: "COD",
+    CG: "COG",
+    CI: "CIV",
+    DJ: "DJI",
+    EG: "EGY",
+    GQ: "GNQ",
+    ER: "ERI",
+    SZ: "SWZ",
+    ET: "ETH",
+    GA: "GAB",
+    GM: "GMB",
+    GH: "GHA",
+    GN: "GIN",
+    GW: "GNB",
+    KE: "KEN",
+    LS: "LSO",
+    LR: "LBR",
+    LY: "LBY",
+    MG: "MDG",
+    MW: "MWI",
+    ML: "MLI",
+    MR: "MRT",
+    MU: "MUS",
+    YT: "MYT",
+    MA: "MAR",
+    MZ: "MOZ",
+    NA: "NAM",
+    NE: "NER",
+    NG: "NGA",
+    RE: "REU",
+    RW: "RWA",
+    ST: "STP",
+    SN: "SEN",
+    SC: "SYC",
+    SL: "SLE",
+    SO: "SOM",
+    ZA: "ZAF",
+    SS: "SSD",
+    SD: "SDN",
+    TZ: "TZA",
+    TG: "TGO",
+    TN: "TUN",
+    UG: "UGA",
+    EH: "ESH",
+    ZM: "ZMB",
+    ZW: "ZWE",
   };
 
   const highlightedIds = useMemo(() => {
-    const scores = pollingData?.result?.context?.country_scores_json || [];
-    return scores.map((c: any) => iso2ToIso3[c.id.toUpperCase()] || c.id.toUpperCase());
+    return pollingData?.result?.context?.country_scores_json.map(
+      (c: any) => iso2ToIso3[c.id.toUpperCase()] || c.id.toUpperCase()
+    );
   }, [pollingData]);
 
   const onDataLoad = useCallback((data: any) => {
@@ -108,10 +151,8 @@ export default function MyMap() {
 
   const dataStyle = useCallback(
     (feature: any) => {
-      const iso2 = feature.getProperty("iso_a2")?.toUpperCase();
       const iso3 = feature.getId()?.toUpperCase();
-      const isHighlighted = highlightedIds.includes(iso2) || highlightedIds.includes(iso3);
-
+      const isHighlighted = highlightedIds.includes(iso3);
       return {
         fillColor: isHighlighted ? "#1FD3C8" : "#e5e7eb",
         strokeColor: isHighlighted ? "#0f766e" : "#9ca3af",
