@@ -54,6 +54,8 @@ export async function getJobIdAction(
       MAPS_BASE_URL,
     );
 
+    console.log("result server", result);
+
     if (!result.success || !result.data?.job_id) {
       return { success: false, error: "Failed to get job_id from server" };
     }

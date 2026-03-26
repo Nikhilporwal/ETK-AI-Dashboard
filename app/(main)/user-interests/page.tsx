@@ -70,13 +70,13 @@ export default function UserInterestsPage() {
         if (!result.success) {
           hideLoader();
           toast.error(result.error);
-          break;
+          return;
         }
 
         if (result.data.state === "error") {
           hideLoader();
           toast.error(result.data.message);
-          break;
+          return;
         }
 
         if (result.data.state === "done") {
@@ -84,18 +84,19 @@ export default function UserInterestsPage() {
           setPollingData(result.data);
           toast.success(result.data.message);
           router.push("/maps");
-          break;
+          return;   
         }
 
         await new Promise((res) => setTimeout(res, 1000));
-
         maxAttempt++;
       }
 
       hideLoader();
       toast.error("Polling timed out");
+
     } catch (e) {
       hideLoader();
+      toast.error("Something went wrong");
     }
   };
 
