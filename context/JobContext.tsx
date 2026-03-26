@@ -40,10 +40,10 @@ export const useGlobalContext = () => {
 // 5. Provider Component
 export default function GlobalProvider({ children }: { children: ReactNode }) {
   const [formData, setFormData] = useState<JobFormData>({
-    company_profile: "",
-    countries: [],
-    company_intentions: [],
-    industries: [],
+    company_profile: "An agriculture company supports farming with seeds, tools, and sustainable solutions.",
+    countries: ["Algeria", "Botswana"],
+    company_intentions: ["Market Entry"],
+    industries: ["Agriculture"],
   });
   const [pollingData, setPollingData] = useState<PollingResult | null>(null);
 

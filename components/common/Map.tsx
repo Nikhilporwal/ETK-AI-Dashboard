@@ -7,9 +7,8 @@ import {
   Data,
 } from "@react-google-maps/api";
 import { useGlobalContext } from "@/context/JobContext";
-import { useState, useCallback, useMemo } from "react";
-import "./Map.css"; // We'll create this for styling the custom InfoWindow
-import Image from "next/image";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import "./Map.css";
 
 const containerStyle = {
   width: "100%",
@@ -18,10 +17,9 @@ const containerStyle = {
 
 const center = {
   lat: 5,
-  lng: 20, // Africa center
+  lng: 20,
 };
 
-// Map options for a cleaner look
 const mapOptions = {
   disableDefaultUI: false,
   styles: [
@@ -71,6 +69,8 @@ const countryCoordinates: Record<string, { lat: number; lng: number }> = {
   Zimbabwe: { lat: -19.0154, lng: 29.1549 },
 };
 
+
+
 export default function MyMap() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -78,23 +78,29 @@ export default function MyMap() {
   });
 
   const { pollingData } = useGlobalContext();
-  console.log(
-    "Map Component - isLoaded:",
-    isLoaded,
-    "pollingData:",
-    pollingData?.state,
-  );
-
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [mapData, setMapData] = useState<any>(null);
 
-  // Memoize highlighted IDs
+  const iso2ToIso3: Record<string, string> = {
+    DZ: "DZA", AO: "AOI", BW: "BWA", BI: "BDI", CM: "CMR",
+    CV: "CPV", CF: "CAF", TD: "TCD", KM: "COM", CD: "COD",
+    CG: "COG", CI: "CIV", DJ: "DJI", EG: "EGY", GQ: "GNQ",
+    ER: "ERI", SZ: "SWZ", ET: "ETH", GA: "GAB", GM: "GMB",
+    GH: "GHA", GN: "GIN", GW: "GNB", KE: "KEN", LS: "LSO",
+    LR: "LBR", LY: "LBY", MG: "MDG", MW: "MWI", ML: "MLI",
+    MR: "MRT", MU: "MUS", YT: "MYT", MA: "MAR", MZ: "MOZ",
+    NA: "NAM", NE: "NER", NG: "NGA", RE: "REU", RW: "RWA",
+    ST: "STP", SN: "SEN", SC: "SYC", SL: "SLE", SO: "SOM",
+    ZA: "ZAF", SS: "SSD", SD: "SDN", TZ: "TZA", TG: "TGO",
+    TN: "TUN", UG: "UGA", EH: "ESH", ZM: "ZMB", ZW: "ZWE"
+  };
+
   const highlightedIds = useMemo(() => {
-    if (!pollingData?.result?.context?.country_scores_json) return [];
-    return pollingData.result.context.country_scores_json.map((c: any) => c.id);
+    const scores = pollingData?.result?.context?.country_scores_json || [];
+    return scores.map((c: any) => iso2ToIso3[c.id.toUpperCase()] || c.id.toUpperCase());
   }, [pollingData]);
 
   const onDataLoad = useCallback((data: any) => {
-    // Correct GeoJSON for widespread compatibility
     data.loadGeoJson(
       "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json",
     );
@@ -102,25 +108,28 @@ export default function MyMap() {
 
   const dataStyle = useCallback(
     (feature: any) => {
-      // Robust ISO code lookup
-      const id =
-        feature.getProperty("id") ||
-        feature.getProperty("iso_a2") ||
-        feature.getProperty("ISO_A2") ||
-        feature.getId();
-      const isHighlighted = highlightedIds.includes(id);
+      const iso2 = feature.getProperty("iso_a2")?.toUpperCase();
+      const iso3 = feature.getId()?.toUpperCase();
+      const isHighlighted = highlightedIds.includes(iso2) || highlightedIds.includes(iso3);
 
       return {
-        fillColor: isHighlighted ? "#14d2bd" : "transparent",
-        strokeColor: isHighlighted ? "#0ea497" : "transparent",
-        strokeWeight: isHighlighted ? 1.5 : 0,
-        fillOpacity: isHighlighted ? 0.7 : 0,
+        fillColor: isHighlighted ? "#1FD3C8" : "#e5e7eb",
+        strokeColor: isHighlighted ? "#0f766e" : "#9ca3af",
+        strokeWeight: isHighlighted ? 2 : 0.5,
+        fillOpacity: isHighlighted ? 0.9 : 0.15,
         visible: true,
       };
     },
     [highlightedIds],
   );
 
+  useEffect(() => {
+    if (mapData) {
+      mapData.setStyle(dataStyle);
+    }
+  }, [mapData, dataStyle, highlightedIds, selectedCountry]);
+
+  // 2. Conditional returns MUST come after all Hook declarations
   if (!isLoaded) return <div>Loading...</div>;
 
   if (!pollingData || pollingData.state !== "done") {
@@ -149,6 +158,7 @@ export default function MyMap() {
         <Data
           onLoad={(data) => {
             onDataLoad(data);
+            setMapData(data);
             data.setStyle(dataStyle);
           }}
           onClick={(e) => {
@@ -157,6 +167,7 @@ export default function MyMap() {
               e.feature.getProperty("iso_a2") ||
               e.feature.getProperty("ISO_A2") ||
               e.feature.getId();
+
             const country = displayData.find((d: any) => {
               const scoreData =
                 pollingData.result.context.country_scores_json.find(
@@ -166,6 +177,7 @@ export default function MyMap() {
                 ? d.country_name === scoreData.country_name
                 : false;
             });
+
             if (country && e.latLng) {
               setSelectedCountry({
                 ...country,
@@ -182,7 +194,7 @@ export default function MyMap() {
 
           const countryCode = pollingData.result.context.country_scores_json
             .find((c: any) => c.country_name === country.country_name)
-            ?.id?.toLowerCase(); // ISO-2 code
+            ?.id?.toLowerCase();
 
           return (
             <InfoWindow
