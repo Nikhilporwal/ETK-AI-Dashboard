@@ -57,7 +57,7 @@ export default function SignupPage() {
       setUserDetails(result.data);
       toast.success("Account created successfully!");
 
-      router.push(`/company-intentions/${result.data.user_id}`);
+      router.push(`/company-intentions`);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     } finally {

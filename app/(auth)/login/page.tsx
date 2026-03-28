@@ -9,10 +9,11 @@ import { useRouter } from "next/navigation";
 import { loginAction } from "@/actions/auth.actions";
 import { useGlobalContext } from "@/context/JobContext";
 import toast from "react-hot-toast";
+import { getUserInterestsDataAction } from "@/actions/maps.actions";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { showLoader, hideLoader, isLoading, setUserDetails } = useGlobalContext();
+  const { showLoader, hideLoader, isLoading, setUserDetails, setFormData } = useGlobalContext();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -26,17 +27,23 @@ export default function LoginPage() {
 
     try {
       const result = await loginAction({ email, password });
-
       if (!result.success) {
         toast.error(result.error);
         return;
       }
 
-      // ✅ corrected: directly use result.data (AuthData)
+      const userData = await getUserInterestsDataAction(result.data.user_id);
+
+      if (!userData.success) {
+        toast.error(userData.error);
+        return;
+      }
+
       setUserDetails(result.data);
+      setFormData(userData.data.profile);
       toast.success("Logged in successfully!");
 
-      router.push(`/company-intentions/${result.data.user_id}`);
+      router.push(`/company-intentions`);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     } finally {

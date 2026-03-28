@@ -15,7 +15,6 @@ export type JobFormData = {
 
 export type UserDetails = {
   user_id: string;
-  access_token: string;
 };
 
 // 2. Main Context Type

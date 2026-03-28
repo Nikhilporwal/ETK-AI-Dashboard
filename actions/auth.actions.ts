@@ -1,5 +1,6 @@
 "use server";
 
+import { UserDetails } from "@/context/JobContext";
 import apiFetch from "@/lib/api/api";
 import { cookies } from "next/headers";
 
@@ -72,4 +73,22 @@ export async function signupAction(
   }
 
   return { success: true, data: res.data };
+}
+
+
+export async function getUserIdAction(): Promise<ActionResult<UserDetails>> {
+  try {
+    const res = await apiFetch<UserDetails>(
+      `/get-user-id`
+    );
+
+    if (!res.success) {
+      return { success: false, error: res.message };
+    }
+
+    return { success: true, data: res.data };
+
+  } catch (error) {
+    return { success: false, error: "Failed to fetch user details" };
+  }
 }

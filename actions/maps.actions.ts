@@ -19,6 +19,7 @@ export type PollingResult = {
   state: "processing" | "done" | "error";
   message: string;
   result?: any;
+  progress?: any;
 };
 
 export type GetUserDataResponse = {
@@ -45,7 +46,7 @@ export async function saveUserInterestsAction(
 }
 
 // get user data 
-export async function getUserDataAction(
+export async function getUserInterestsDataAction(
   user_id: string,
 ): Promise<ActionResult<GetUserDataResponse>> {
   try {

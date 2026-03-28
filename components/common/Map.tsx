@@ -9,6 +9,9 @@ import {
 import { useGlobalContext } from "@/context/JobContext";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import "./Map.css";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const containerStyle = {
   width: "100%",
@@ -76,8 +79,10 @@ export default function MyMap() {
   });
 
   const { pollingData } = useGlobalContext();
+  console.log("pollingData", pollingData)
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
   const [mapData, setMapData] = useState<any>(null);
+  const router = useRouter();
 
   const iso2ToIso3: Record<string, string> = {
     DZ: "DZA",
@@ -252,18 +257,26 @@ export default function MyMap() {
               <div className="custom-info-box">
                 <div className="info-header flex items-center justify-between gap-6">
                   <div className="flex items-center gap-2">
-                    <img
+                    <Image
                       src={`https://flagcdn.com/w40/${countryCode}.png`}
                       alt={country.country_name}
-                      className="w-5 h-4 object-cover rounded-sm border"
+                      width={20}
+                      height={16}
+                      className="object-cover rounded-sm border"
                     />
                     <span className="font-bold text-[#111827] text-sm">
                       {country.country_name}
                     </span>
                   </div>
-                  <button className="text-[#0ea497] text-md font-bold underline bg-transparent border-none p-0 cursor-pointer">
+                  <Button
+                    variant={"link"}
+                    className="p-0 m-0 h-auto min-h-0 leading-none border-0 shadow-none font-semibold text-[#0EA497] text-sm underline"
+                    onClick={() => {
+                      router.push(`/country-subpage/${country.country_name}`)
+                    }}
+                  >
                     More details
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="info-content">

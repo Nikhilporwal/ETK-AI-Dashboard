@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGlobalContext } from "@/context/JobContext";
-import { getUserDataAction } from "@/actions/maps.actions";
-import toast from "react-hot-toast";
 
 const options = [
   "Trade Opportunities (D2C & B2C)",
@@ -20,38 +17,8 @@ const options = [
 
 export default function MarketEntryModelPage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  const { formData, updateData, showLoader, hideLoader, setFormData } = useGlobalContext();
-
-  useEffect(() => {
-    if (!id) return;
-
-    const getUserData = async () => {
-      showLoader("Loading user data...");
-      try {
-        const result = await getUserDataAction(id);
-
-        if (!result.success) {
-          toast.error(result.error);
-          return;
-        }
-
-        const profile = result.data?.profile;
-        if (!profile) return;
-
-        setFormData(profile)
-
-      } catch (error: any) {
-        toast.error(error?.message || "Failed to fetch user data.");
-      } finally {
-        hideLoader();
-      }
-    };
-
-    getUserData();
-  }, [id]);
+  const { formData, updateData } = useGlobalContext();
 
   const toggleOption = (option: string) => {
     const current = formData.company_intentions ?? [];

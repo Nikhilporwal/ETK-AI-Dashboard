@@ -93,7 +93,6 @@ export default function UserInterestsPage() {
 
       hideLoader();
       toast.error("Polling timed out");
-
     } catch (e) {
       hideLoader();
       toast.error("Something went wrong");
@@ -112,7 +111,8 @@ export default function UserInterestsPage() {
         getJobIdAction(formData),
         saveUserInterestsAction({ ...formData, user_id: userDetails?.user_id }),
       ]);
-
+      console.log("result1", result1)
+      console.log("result2", result2)
       if (!result1.success) {
         toast.error(result1.error);
         return;
