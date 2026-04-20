@@ -53,8 +53,7 @@ export default function SignupPage() {
         toast.error(result.error);
         return;
       }
-
-      setUserDetails(result.data);
+      setUserDetails({ email: result.data.email, user_id: result.data.user_id });
       toast.success("Account created successfully!");
 
       router.push(`/company-intentions`);

@@ -32,7 +32,6 @@ export type GetUserDataResponse = {
 export async function saveUserInterestsAction(
   data: JobFormData,
 ): Promise<ActionResult<SaveUserInterestsResponse>> {
-
   const res = await apiFetch<SaveUserInterestsResponse>(`/user-interests`, {
     method: "POST",
     body: JSON.stringify(data),
@@ -82,7 +81,7 @@ export async function getJobIdAction(
       },
       MAPS_BASE_URL,
     );
-
+    console.log("res", res);
     if (!res.success || !res.data?.job_id) {
       return { success: false, error: res.message || "Failed to get job_id" };
     }

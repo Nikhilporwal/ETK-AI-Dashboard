@@ -7,24 +7,27 @@ import {
   Data,
 } from "@react-google-maps/api";
 import { useGlobalContext } from "@/context/JobContext";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import "./Map.css";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const containerStyle = {
-  width: "100%",
-  height: "100%",
-};
 
-const center = {
-  lat: 5,
-  lng: 20,
-};
 
-const mapOptions = {
+const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" } as const;
+
+const MAP_CENTER = { lat: 5, lng: 20 } as const;
+
+const MAP_OPTIONS = {
   disableDefaultUI: false,
+  minZoom: 2.5,
+  maxZoom: 6,
+  gestureHandling: "greedy",
+  restriction: {
+    latLngBounds: { north: 85, south: -85, west: -180, east: 180 },
+    strictBounds: true,
+  },
   styles: [
     {
       featureType: "water",
@@ -42,9 +45,9 @@ const mapOptions = {
       stylers: [{ color: "#d1d5db" }, { weight: 1 }],
     },
   ],
-};
+} as const;
 
-const countryCoordinates: Record<string, { lat: number; lng: number }> = {
+const COUNTRY_COORDINATES: Record<string, { lat: number; lng: number }> = {
   Algeria: { lat: 28.0339, lng: 1.6596 },
   Angola: { lat: -11.2027, lng: 17.8739 },
   Botswana: { lat: -22.3285, lng: 24.6849 },
@@ -72,6 +75,43 @@ const countryCoordinates: Record<string, { lat: number; lng: number }> = {
   Zimbabwe: { lat: -19.0154, lng: 29.1549 },
 };
 
+// ISO-2 → ISO-3 mapping — static data, module-level
+const ISO2_TO_ISO3: Record<string, string> = {
+  DZ: "DZA", AO: "AGO", BW: "BWA", BI: "BDI", CM: "CMR",
+  CV: "CPV", CF: "CAF", TD: "TCD", KM: "COM", CD: "COD",
+  CG: "COG", CI: "CIV", DJ: "DJI", EG: "EGY", GQ: "GNQ",
+  ER: "ERI", SZ: "SWZ", ET: "ETH", GA: "GAB", GM: "GMB",
+  GH: "GHA", GN: "GIN", GW: "GNB", KE: "KEN", LS: "LSO",
+  LR: "LBR", LY: "LBY", MG: "MDG", MW: "MWI", ML: "MLI",
+  MR: "MRT", MU: "MUS", YT: "MYT", MA: "MAR", MZ: "MOZ",
+  NA: "NAM", NE: "NER", NG: "NGA", RE: "REU", RW: "RWA",
+  ST: "STP", SN: "SEN", SC: "SYC", SL: "SLE", SO: "SOM",
+  ZA: "ZAF", SS: "SSD", SD: "SDN", TZ: "TZA", TG: "TGO",
+  TN: "TUN", UG: "UGA", EH: "ESH", ZM: "ZMB", ZW: "ZWE",
+};
+
+// Pure function — no closure over component state
+function getHeatmapColor(value: number): string {
+  if (value >= 85) return "#1e3a8a";
+  if (value >= 70) return "#2563eb";
+  if (value >= 50) return "#3b82f6";
+  if (value >= 30) return "#93c5fd";
+  if (value >= 10) return "#dbeafe";
+  return "#f1f5f9";
+}
+
+const DEFAULT_FEATURE_STYLE = {
+  fillColor: "#e5e7eb",
+  strokeColor: "#9ca3af",
+  strokeWeight: 0.5,
+  fillOpacity: 0.1,
+  visible: true,
+} as const;
+
+// ─────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────
+
 export default function MyMap() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -79,110 +119,126 @@ export default function MyMap() {
   });
 
   const { pollingData } = useGlobalContext();
-  console.log("pollingData", pollingData)
-  const [selectedCountry, setSelectedCountry] = useState<any>(null);
-  const [mapData, setMapData] = useState<any>(null);
   const router = useRouter();
 
-  const iso2ToIso3: Record<string, string> = {
-    DZ: "DZA",
-    AO: "AGO",
-    BW: "BWA",
-    BI: "BDI",
-    CM: "CMR",
-    CV: "CPV",
-    CF: "CAF",
-    TD: "TCD",
-    KM: "COM",
-    CD: "COD",
-    CG: "COG",
-    CI: "CIV",
-    DJ: "DJI",
-    EG: "EGY",
-    GQ: "GNQ",
-    ER: "ERI",
-    SZ: "SWZ",
-    ET: "ETH",
-    GA: "GAB",
-    GM: "GMB",
-    GH: "GHA",
-    GN: "GIN",
-    GW: "GNB",
-    KE: "KEN",
-    LS: "LSO",
-    LR: "LBR",
-    LY: "LBY",
-    MG: "MDG",
-    MW: "MWI",
-    ML: "MLI",
-    MR: "MRT",
-    MU: "MUS",
-    YT: "MYT",
-    MA: "MAR",
-    MZ: "MOZ",
-    NA: "NAM",
-    NE: "NER",
-    NG: "NGA",
-    RE: "REU",
-    RW: "RWA",
-    ST: "STP",
-    SN: "SEN",
-    SC: "SYC",
-    SL: "SLE",
-    SO: "SOM",
-    ZA: "ZAF",
-    SS: "SSD",
-    SD: "SDN",
-    TZ: "TZA",
-    TG: "TGO",
-    TN: "TUN",
-    UG: "UGA",
-    EH: "ESH",
-    ZM: "ZMB",
-    ZW: "ZWE",
-  };
+  const [mapData, setMapData] = useState<google.maps.Data | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
-  const highlightedIds = useMemo(() => {
-    return pollingData?.result?.context?.country_scores_json.map(
-      (c: any) => iso2ToIso3[c.id.toUpperCase()] || c.id.toUpperCase()
-    );
+  // Stable ref for pixelOffset — created once after map loads
+  const pixelOffsetRef = useRef<google.maps.Size | null>(null);
+
+  // ── Derived: ISO3 → score lookup (O(1) access later) ──────
+  const highlightedIds = useMemo<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
+      const iso3 = ISO2_TO_ISO3[c.id.toUpperCase()] ?? c.id.toUpperCase();
+      map[iso3] = c.value;
+    });
+    return map;
   }, [pollingData]);
 
-  const onDataLoad = useCallback((data: any) => {
-    data.loadGeoJson(
-      "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json",
-    );
-  }, []);
+  // ── Derived: country_name → ISO3 lookup for O(1) access ───
+  const countryNameToIso3 = useMemo<Record<string, string>>(() => {
+    const map: Record<string, string> = {};
+    pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
+      const iso3 = ISO2_TO_ISO3[c.id.toUpperCase()] ?? c.id.toUpperCase();
+      map[c.country_name] = iso3;
+    });
+    return map;
+  }, [pollingData]);
 
+  // ── Derived: country_name → ISO2 (lowercase) for flag URLs ─
+  const countryNameToIso2Lower = useMemo<Record<string, string>>(() => {
+    const map: Record<string, string> = {};
+    pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
+      map[c.country_name] = c.id.toLowerCase();
+    });
+    return map;
+  }, [pollingData]);
+
+  // ── Map style callback ─────────────────────────────────────
   const dataStyle = useCallback(
     (feature: any) => {
-      const iso3 = feature.getId()?.toUpperCase();
-      const isHighlighted = highlightedIds.includes(iso3);
+      const iso3: string | undefined =
+        feature.getProperty("ISO3166-1-Alpha-3") ??
+        feature.getProperty("iso_a3");
+
+      if (!iso3) return DEFAULT_FEATURE_STYLE;
+
+      const value = highlightedIds[iso3];
+      if (value === undefined) return DEFAULT_FEATURE_STYLE;
+
       return {
-        fillColor: isHighlighted ? "#1FD3C8" : "#e5e7eb",
-        strokeColor: isHighlighted ? "#0f766e" : "#9ca3af",
-        strokeWeight: isHighlighted ? 2 : 0.5,
-        fillOpacity: isHighlighted ? 0.9 : 0.15,
+        fillColor: getHeatmapColor(value),
+        strokeColor: "#065f46",
+        strokeWeight: 1,
+        fillOpacity: 0.6,
         visible: true,
       };
     },
-    [highlightedIds],
+    [highlightedIds]
   );
 
-  useEffect(() => {
-    if (mapData) {
-      mapData.setStyle(dataStyle);
-    }
-  }, [mapData, dataStyle, highlightedIds, selectedCountry]);
+  const onDataLoad = useCallback(
+    (data: google.maps.Data) => {
+      data.loadGeoJson(
+        "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson"
+      );
+      data.setStyle(dataStyle);
+      setMapData(data);
 
-  // 2. Conditional returns MUST come after all Hook declarations
+      // Create pixelOffset once the Maps SDK is available
+      if (!pixelOffsetRef.current && window.google) {
+        pixelOffsetRef.current = new window.google.maps.Size(0, -10);
+      }
+    },
+    [dataStyle]
+  );
+
+  // Re-apply styles when highlighted data changes
+  // (avoids full component re-render just for colour refresh)
+  const prevHighlightedRef = useRef(highlightedIds);
+  if (mapData && prevHighlightedRef.current !== highlightedIds) {
+    prevHighlightedRef.current = highlightedIds;
+    mapData.setStyle(dataStyle);
+  }
+
+  // ── Mouse / click handlers ─────────────────────────────────
+  const handleMouseOver = useCallback((e: google.maps.Data.MouseEvent) => {
+    const iso3 = (
+      e.feature.getProperty("ISO3166-1-Alpha-3") ??
+      e.feature.getProperty("iso_a3")
+    ) as string | undefined;
+
+    if (iso3 && iso3 !== "ATA") setHoveredCountry(iso3);
+  }, []);
+
+  const handleMouseOut = useCallback(() => {
+    setHoveredCountry(null);
+  }, []);
+
+  const handleClick = useCallback((e: google.maps.Data.MouseEvent) => {
+    const iso3 = (
+      e.feature.getProperty("ISO3166-1-Alpha-3") ??
+      e.feature.getProperty("iso_a3")
+    ) as string | undefined;
+
+    if (!iso3 || iso3 === "ATA") return;
+
+    setSelectedCountries((prev) =>
+      prev.includes(iso3) ? prev.filter((c) => c !== iso3) : [...prev, iso3]
+    );
+  }, []);
+
+  // ── Early returns (after all hooks) ───────────────────────
   if (!isLoaded) return <div>Loading...</div>;
 
   if (!pollingData || pollingData.state !== "done") {
     return (
       <div className="flex items-center justify-center w-full h-full bg-slate-50">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#203D8E] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#203D8E] mx-auto" />
           <p className="text-slate-500 font-medium">
             Preparing your market analysis...
           </p>
@@ -191,68 +247,48 @@ export default function MyMap() {
     );
   }
 
-  const displayData = pollingData.result?.context?.display_data || [];
+  const displayData: any[] =
+    pollingData.result?.context?.display_data ?? [];
+
+  // Filter display entries that should show an InfoWindow (O(n) — no nested .find)
+  const visibleInfoWindows = displayData.filter((country: any) => {
+    const iso3 = countryNameToIso3[country.country_name];
+    return iso3 && (selectedCountries.includes(iso3) || hoveredCountry === iso3);
+  });
+
+  // InfoWindow options — stable object for pixelOffset
+  const infoWindowOptions = {
+    disableAutoPan: true,
+    pixelOffset: pixelOffsetRef.current ?? undefined,
+    maxWidth: 240,
+  };
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-screen relative">
       <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={3.5}
-        options={mapOptions}
+        mapContainerStyle={MAP_CONTAINER_STYLE}
+        center={MAP_CENTER}
+        zoom={2}
+        options={MAP_OPTIONS}
       >
         <Data
-          onLoad={(data) => {
-            onDataLoad(data);
-            setMapData(data);
-            data.setStyle(dataStyle);
-          }}
-          onClick={(e) => {
-            const id =
-              e.feature.getProperty("id") ||
-              e.feature.getProperty("iso_a2") ||
-              e.feature.getProperty("ISO_A2") ||
-              e.feature.getId();
-
-            const country = displayData.find((d: any) => {
-              const scoreData =
-                pollingData.result.context.country_scores_json.find(
-                  (s: any) => s.id === id,
-                );
-              return scoreData
-                ? d.country_name === scoreData.country_name
-                : false;
-            });
-
-            if (country && e.latLng) {
-              setSelectedCountry({
-                ...country,
-                id,
-                latLng: e.latLng.toJSON(),
-              });
-            }
-          }}
+          onLoad={onDataLoad}
+          onMouseOver={handleMouseOver}
+          onMouseOut={handleMouseOut}
+          onClick={handleClick}
         />
 
-        {displayData.map((country: any, idx: number) => {
-          const coords = countryCoordinates[country.country_name];
+        {visibleInfoWindows.map((country: any) => {
+          const coords = COUNTRY_COORDINATES[country.country_name];
           if (!coords) return null;
 
-          const countryCode = pollingData.result.context.country_scores_json
-            .find((c: any) => c.country_name === country.country_name)
-            ?.id?.toLowerCase();
+          const countryCode = countryNameToIso2Lower[country.country_name];
 
           return (
             <InfoWindow
-              key={idx}
+              key={country.country_name}
               position={coords}
-              options={{
-                pixelOffset:
-                  typeof window !== "undefined" && window.google
-                    ? new window.google.maps.Size(0, -10)
-                    : undefined,
-                maxWidth: 240,
-              }}
+              options={infoWindowOptions}
             >
               <div className="custom-info-box">
                 <div className="info-header flex items-center justify-between gap-6">
@@ -271,9 +307,9 @@ export default function MyMap() {
                   <Button
                     variant={"link"}
                     className="p-0 m-0 h-auto min-h-0 leading-none border-0 shadow-none font-semibold text-[#0EA497] text-sm underline"
-                    onClick={() => {
+                    onClick={() =>
                       router.push(`/country-subpage/${country.country_name}`)
-                    }}
+                    }
                   >
                     More details
                   </Button>

@@ -20,8 +20,9 @@ export default async function apiFetch<T>(
         ...((options.headers as Record<string, string>) || {}),
       },
     });
-
+    console.log("response", response);
     const json = await response.json().catch(() => ({}));
+
 
     // Don't check success for passionlabs API
     if (FINAL_BASE_URL.includes("https://etk-api.passionlabs.ai")) {
@@ -31,12 +32,11 @@ export default async function apiFetch<T>(
         success: response.ok,
       };
     }
-
     const isSuccess = response.ok && (typeof json.success === "boolean" ? json.success : true);
 
     return {
       data: (json.data ?? {}) as T,
-      message: json?.message || (isSuccess ? "Success" : "Something went wrong"),
+      message: json?.message || json?.detail || (isSuccess ? "Success" : "Something went wrong"),
       success: isSuccess,
     };
   } catch (error: any) {

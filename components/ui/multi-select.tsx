@@ -3,6 +3,7 @@
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
+import { LucideIcon } from "lucide-react";
 
 // Simple visual-only checkbox
 function CheckBox({ checked }: { checked: boolean }) {
@@ -25,6 +26,7 @@ function CheckBox({ checked }: { checked: boolean }) {
 export interface Option {
   id: string;
   label: string;
+  icon?: LucideIcon;
 }
 
 interface MultiSelectProps {

@@ -38,8 +38,7 @@ export default function LoginPage() {
         toast.error(userData.error);
         return;
       }
-
-      setUserDetails(result.data);
+      setUserDetails({ email: result.data.email, user_id: result.data.user_id });
       setFormData(userData.data.profile);
       toast.success("Logged in successfully!");
 

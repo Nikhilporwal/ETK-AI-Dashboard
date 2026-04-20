@@ -15,12 +15,23 @@ export type JobFormData = {
 
 export type UserDetails = {
   user_id: string;
+  email: string;
+};
+
+type ModalConfig = {
+  isOpen: boolean;
+  content: React.ReactNode | null;
+  title?: string;
+  noPadding?: boolean;
 };
 
 // 2. Main Context Type
 type GlobalContextType = {
   formData: JobFormData;
-  updateData: <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => void;
+  updateData: <K extends keyof JobFormData>(
+    key: K,
+    value: JobFormData[K],
+  ) => void;
   setFormData: (data: JobFormData) => void;
 
   pollingData: PollingResult | null;
@@ -32,6 +43,16 @@ type GlobalContextType = {
   isLoading: boolean;
   showLoader: (message?: string) => void;
   hideLoader: () => void;
+
+  modalConfig: ModalConfig;
+  setModalConfig: (config: ModalConfig) => void;
+
+  openModal: (
+    content: React.ReactNode,
+    title?: string,
+    noPadding?: boolean,
+  ) => void;
+  closeModal: () => void;
 };
 
 // 3. Create Context
@@ -56,9 +77,35 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
   });
   const [pollingData, setPollingData] = useState<PollingResult | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [modalConfig, setModalConfig] = useState<ModalConfig>({
+    isOpen: false,
+    content: null,
+    title: "",
+    noPadding: false,
+  });
 
-  const updateData = <K extends keyof JobFormData>(key: K, value: JobFormData[K]) => {
+  const updateData = <K extends keyof JobFormData>(
+    key: K,
+    value: JobFormData[K],
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const openModal = (
+    content: React.ReactNode,
+    title?: string,
+    noPadding?: boolean,
+  ) => {
+    setModalConfig({
+      isOpen: true,
+      content: content,
+      title: title,
+      noPadding: noPadding,
+    });
+  };
+
+  const closeModal = () => {
+    setModalConfig((prev) => ({ ...prev, isOpen: false }));
   };
 
   // UI States
@@ -87,7 +134,11 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
         hideLoader,
         userDetails,
         setUserDetails,
-        setFormData
+        setFormData,
+        openModal,
+        closeModal,
+        modalConfig,
+        setModalConfig,
       }}
     >
       {/* Global Loader Overlay */}

@@ -12,6 +12,7 @@ export interface AuthCredentials {
 export type AuthData = {
   access_token: string;
   user_id: string;
+  email: string;
 };
 
 // Discriminated union

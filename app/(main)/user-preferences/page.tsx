@@ -66,6 +66,7 @@ export default function UserInterestsPage() {
 
       while (maxAttempt < 60) {
         const result = await pollingAction(job_id);
+        console.log("result", result);
 
         if (!result.success) {
           hideLoader();
@@ -83,7 +84,7 @@ export default function UserInterestsPage() {
           hideLoader();
           setPollingData(result.data);
           toast.success(result.data.message);
-          router.push("/maps");
+          router.push("/overview");
           return;
         }
 
@@ -111,8 +112,8 @@ export default function UserInterestsPage() {
         getJobIdAction(formData),
         saveUserInterestsAction({ ...formData, user_id: userDetails?.user_id }),
       ]);
-      console.log("result1", result1)
-      console.log("result2", result2)
+      console.log("result1", result1);
+      console.log("result2", result2);
       if (!result1.success) {
         toast.error(result1.error);
         return;
@@ -125,6 +126,7 @@ export default function UserInterestsPage() {
 
       handlePolling(result1.data.job_id);
     } catch (e) {
+      console.log("e", e);
       hideLoader();
     }
   };
