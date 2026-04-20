@@ -19,7 +19,7 @@ const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" } as const;
 
 const MAP_CENTER = { lat: 5, lng: 20 } as const;
 
-const MAP_OPTIONS = {
+const MAP_OPTIONS: google.maps.MapOptions = {
   disableDefaultUI: false,
   minZoom: 2.5,
   maxZoom: 6,
@@ -45,7 +45,7 @@ const MAP_OPTIONS = {
       stylers: [{ color: "#d1d5db" }, { weight: 1 }],
     },
   ],
-} as const;
+};
 
 const COUNTRY_COORDINATES: Record<string, { lat: number; lng: number }> = {
   Algeria: { lat: 28.0339, lng: 1.6596 },
