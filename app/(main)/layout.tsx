@@ -3,12 +3,13 @@ import { getUserInterestsDataAction } from "@/actions/maps.actions";
 import AuthInitializer from "@/components/auth/AuthInitializer";
 import { MainHeader } from "@/components/layout/main-header";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export default async function MainLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth_token")?.value;
@@ -31,6 +32,7 @@ export default async function MainLayout({
           {children}
         </div>
       </main>
+      {modal}
     </div>
   );
 }

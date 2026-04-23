@@ -43,22 +43,10 @@ type GlobalContextType = {
   isLoading: boolean;
   showLoader: (message?: string) => void;
   hideLoader: () => void;
-
-  modalConfig: ModalConfig;
-  setModalConfig: (config: ModalConfig) => void;
-
-  openModal: (
-    content: React.ReactNode,
-    title?: string,
-    noPadding?: boolean,
-  ) => void;
-  closeModal: () => void;
 };
 
-// 3. Create Context
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-// 4. Custom Hook
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
   if (!context) {
@@ -67,7 +55,6 @@ export const useGlobalContext = () => {
   return context;
 };
 
-// 5. Provider Component
 export default function GlobalProvider({ children }: { children: ReactNode }) {
   const [formData, setFormData] = useState<JobFormData>({
     company_profile: "",
@@ -77,12 +64,6 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
   });
   const [pollingData, setPollingData] = useState<PollingResult | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-  const [modalConfig, setModalConfig] = useState<ModalConfig>({
-    isOpen: false,
-    content: null,
-    title: "",
-    noPadding: false,
-  });
 
   const updateData = <K extends keyof JobFormData>(
     key: K,
@@ -91,24 +72,6 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const openModal = (
-    content: React.ReactNode,
-    title?: string,
-    noPadding?: boolean,
-  ) => {
-    setModalConfig({
-      isOpen: true,
-      content: content,
-      title: title,
-      noPadding: noPadding,
-    });
-  };
-
-  const closeModal = () => {
-    setModalConfig((prev) => ({ ...prev, isOpen: false }));
-  };
-
-  // UI States
   const [isLoading, setIsLoading] = useState(false);
   const [loaderMessage, setLoaderMessage] = useState("");
 
@@ -135,13 +98,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
         userDetails,
         setUserDetails,
         setFormData,
-        openModal,
-        closeModal,
-        modalConfig,
-        setModalConfig,
       }}
     >
-      {/* Global Loader Overlay */}
       {isLoading && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm animate-in fade-in duration-300">
           <Loader2 className="w-12 h-12 animate-spin text-[#203E93] drop-shadow-md" />
@@ -152,7 +110,6 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
           )}
         </div>
       )}
-
       {children}
     </GlobalContext.Provider>
   );

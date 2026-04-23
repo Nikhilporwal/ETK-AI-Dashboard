@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   User,
@@ -14,7 +14,6 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useGlobalContext } from "@/context/JobContext";
-import AccountSettings from "../settings/AccountSettings";
 
 // Centralized step configuration
 const stepConfigs: Record<string, { step: number; total: number }> = {
@@ -31,8 +30,9 @@ const navigation = [
 
 export function MainHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { userDetails } = useGlobalContext();
+  const router = useRouter()
   const pathname = usePathname();
-  const { openModal, userDetails } = useGlobalContext();
 
   const { step: currentStep = 0, total: totalSteps = 4 } =
     stepConfigs[pathname] || {};
@@ -134,8 +134,8 @@ export function MainHeader() {
                   <div className="py-2">
                     <button
                       onClick={() => {
-                        openModal(<AccountSettings />, "Account", true);
                         setIsDropdownOpen(false);
+                        router.push("/account");
                       }}
                       className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left"
                     >
