@@ -8,7 +8,7 @@ import {
 } from "@react-google-maps/api";
 import { useGlobalContext } from "@/context/JobContext";
 import { useState, useCallback, useMemo, useRef } from "react";
-// import "./Map.css";
+import "./Map.css";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

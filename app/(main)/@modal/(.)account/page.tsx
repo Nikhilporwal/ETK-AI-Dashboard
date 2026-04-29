@@ -18,7 +18,7 @@ export default function AccountModal() {
     const closeModal = () => router.back();
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
 
             {/* BACKDROP */}
             <div
@@ -27,20 +27,20 @@ export default function AccountModal() {
             />
 
             {/* MODAL */}
-            <div className="relative w-[980px] h-[640px] bg-white rounded-2xl shadow-2xl flex overflow-hidden border">
+            <div className="relative w-full max-w-[980px] h-[90vh] sm:h-full sm:max-h-[640px] bg-white rounded-2xl shadow-2xl flex flex-col sm:flex-row overflow-hidden border">
 
                 {/* ================= SIDEBAR ================= */}
-                <div className="w-[260px] bg-gray-50 border-r flex flex-col">
+                <div className="w-full sm:w-[220px] md:w-[260px] bg-gray-50 border-b sm:border-b-0 sm:border-r flex flex-col flex-shrink-0">
 
                     {/* HEADER */}
-                    <div className="p-5 border-b flex items-center justify-between">
+                    <div className="p-4 sm:p-5 border-b flex items-center justify-between">
                         <h2 className="text-sm font-semibold text-gray-800">
                             Account
                         </h2>
                     </div>
 
                     {/* NAV */}
-                    <div className="p-3 space-y-1">
+                    <div className="p-3 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
 
                         <NavItem
                             icon={<User size={16} />}
@@ -74,7 +74,7 @@ export default function AccountModal() {
                 </div>
 
                 {/* ================= CONTENT ================= */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
 
                     {tab === "billing" && <BillingTab />}
                     {tab === "profile" && <ProfileTab />}
@@ -93,9 +93,9 @@ function NavItem({ icon, label, active, onClick }: any) {
         <button
             onClick={onClick}
             className={clsx(
-                "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition",
+                "w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap",
                 active
-                    ? "bg-blue-600 shadow"
+                    ? "bg-blue-600 shadow text-white"
                     : "text-gray-600 hover:bg-gray-200"
             )}
         >
@@ -110,11 +110,11 @@ function BillingTab() {
         <div className="space-y-6">
 
             {/* PLAN */}
-            <div className="p-5 border rounded-xl bg-white">
+            <div className="p-4 sm:p-5 border rounded-xl bg-white">
                 <h3 className="text-lg font-semibold">Enterprise Plan</h3>
                 <p className="text-sm text-gray-500">Billed yearly</p>
 
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <p className="text-2xl font-bold">$699 / year</p>
                         <p className="text-xs text-gray-500">
@@ -122,16 +122,16 @@ function BillingTab() {
                         </p>
                     </div>
 
-                    <div className="text-sm text-right">
+                    <div className="text-sm sm:text-right">
                         Card ending in <b>0289</b>
                     </div>
                 </div>
 
-                <div className="mt-4 flex gap-3">
-                    <button className="px-4 py-2 rounded-lg border hover:bg-gray-50">
+                <div className="mt-4 flex flex-wrap gap-3">
+                    <button className="px-4 py-2 rounded-lg border hover:bg-gray-50 text-sm font-medium transition-colors">
                         Manage plan
                     </button>
-                    <button className="px-4 py-2 rounded-lg border hover:bg-gray-50">
+                    <button className="px-4 py-2 rounded-lg border hover:bg-gray-50 text-sm font-medium transition-colors">
                         Change card
                     </button>
                 </div>
@@ -143,35 +143,37 @@ function BillingTab() {
                     Billing history
                 </div>
 
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-gray-600 ">
-                        <tr>
-                            <th className="p-3 text-left">Invoice</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th className="text-center pr-3">Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {[1, 2, 3, 4].map((i) => (
-                            <tr key={i} className="border-t hover:bg-gray-50">
-                                <td className="p-3">#5943</td>
-                                <td>$699</td>
-                                <td>12/06/2025</td>
-                                <td className="text-green-600 font-medium p-3">
-                                    Successful
-                                </td>
-                                <td className="text-right p-3">
-                                    <button className="text-blue-600 hover:underline">
-                                        Download
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm min-w-[500px]">
+                        <thead className="bg-gray-50 text-gray-600 border-b">
+                            <tr>
+                                <th className="p-3 text-left font-medium">Invoice</th>
+                                <th className="p-3 text-left font-medium">Amount</th>
+                                <th className="p-3 text-left font-medium">Date</th>
+                                <th className="p-3 text-left font-medium">Status</th>
+                                <th className="p-3 text-center font-medium pr-3">Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody className="divide-y">
+                            {[1, 2, 3, 4].map((i) => (
+                                <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                    <td className="p-3">#5943</td>
+                                    <td className="p-3">$699</td>
+                                    <td className="p-3">12/06/2025</td>
+                                    <td className="p-3 text-green-600 font-medium">
+                                        Successful
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        <button className="text-blue-600 hover:underline">
+                                            Download
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -180,22 +182,22 @@ function BillingTab() {
 
 function ProfileTab() {
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
 
             {/* ================= AVATAR ================= */}
-            <div className="border rounded-xl p-5">
+            <div className="border rounded-xl p-4 sm:p-5">
                 <h3 className="text-sm font-semibold mb-4 text-gray-700">
                     Avatar
                 </h3>
 
-                <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 flex-shrink-0" />
 
                     <div>
                         <button className="text-blue-600 text-sm font-medium hover:underline">
                             Upload new image
                         </button>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 mt-1 max-w-[280px]">
                             At least 800x800 px recommended. JPG or PNG allowed.
                         </p>
                     </div>
@@ -225,7 +227,7 @@ function ProfileTab() {
             />
 
             {/* ================= DELETE ================= */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 mt-2">
                 <button className="text-red-500 text-sm font-medium hover:text-red-700 flex items-center gap-2 transition-colors">
                     <Trash2 size={14} />
                     Delete account
@@ -244,7 +246,7 @@ function Section({
     data: { label: string; value: string }[];
 }) {
     return (
-        <div className="border rounded-xl p-5 space-y-4">
+        <div className="border rounded-xl p-4 sm:p-5 space-y-4">
 
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -259,11 +261,11 @@ function Section({
             </div>
 
             {/* Data */}
-            <div className="grid grid-cols-2 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 {data.map((item, i) => (
-                    <div key={i} className="flex justify-between">
+                    <div key={i} className="flex justify-between md:flex-col lg:flex-row lg:items-center gap-1">
                         <span className="text-gray-500">{item.label}</span>
-                        <span className="text-gray-800 font-medium text-right">
+                        <span className="text-gray-800 font-medium lg:text-right">
                             {item.value}
                         </span>
                     </div>
@@ -326,23 +328,25 @@ function NotificationsTab() {
     ] as const;
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
             {groups.map((group) => (
-                <div key={group.title} className="border rounded-xl overflow-hidden p-3">
-                    <div className="px-5 py-1 bg-gray-50 border-b">
+                <div key={group.title} className="border rounded-xl overflow-hidden">
+                    <div className="px-4 sm:px-5 py-3 bg-gray-50 border-b">
                         <h3 className="text-sm font-semibold text-gray-700">{group.title}</h3>
                     </div>
                     <div className="divide-y">
                         {group.items.map((item) => (
-                            <div key={item.key} className="flex items-center justify-between px-5 py-4">
-                                <div>
+                            <div key={item.key} className="flex items-start sm:items-center justify-between p-4 sm:px-5 sm:py-4 gap-4">
+                                <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-800">{item.label}</p>
-                                    <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                                    <p className="text-xs text-gray-500 mt-1 sm:mt-0.5">{item.desc}</p>
                                 </div>
-                                <Toggle
-                                    enabled={states[item.key]}
-                                    onToggle={() => toggle(item.key)}
-                                />
+                                <div className="pt-1 sm:pt-0 flex-shrink-0">
+                                    <Toggle
+                                        enabled={states[item.key]}
+                                        onToggle={() => toggle(item.key)}
+                                    />
+                                </div>
                             </div>
                         ))}
                     </div>
