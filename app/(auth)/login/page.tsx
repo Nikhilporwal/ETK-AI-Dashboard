@@ -31,8 +31,10 @@ export default function LoginPage() {
         toast.error(result.error);
         return;
       }
+      console.log("result", result);
 
       const userData = await getUserInterestsDataAction(result.data.user_id);
+      console.log("userData", userData);
 
       if (!userData.success) {
         toast.error(userData.error);
