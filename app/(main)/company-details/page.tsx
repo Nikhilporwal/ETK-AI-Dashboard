@@ -74,7 +74,7 @@ export default function CompanyDetailsPage() {
           updateData("company_profile", e.target.value)
         }
         placeholder="Please provide your compay profile"
-        className="min-h-[120px]"
+        className="h-[120px]"
       />
 
       <div className="flex justify-between text-sm text-[#6B7280]">
