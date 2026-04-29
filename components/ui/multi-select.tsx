@@ -131,12 +131,17 @@ export function MultiSelect({
 
     if (id === ALL_ID && showSelectAll) {
       const allIds = options.map((opt) => opt.id);
+      const limit = maxSelection ?? allIds.length;
 
-      if (maxSelection && allIds.length > maxSelection) {
-        onChange(allIds.slice(0, maxSelection));
+      const isAllSelected =
+        selected.length === Math.min(allIds.length, limit);
+
+      if (isAllSelected) {
+        onChange([]);
       } else {
-        onChange(selected.length === options.length ? [] : allIds);
+        onChange(allIds.slice(0, limit));
       }
+
       return;
     }
 
@@ -169,7 +174,7 @@ export function MultiSelect({
             ? placeholder
             : !isMulti
               ? options.find(opt => opt.id === selected[0])?.label
-              : selected.length === options.length
+              : selected.length === Math.min(options.length, maxSelection ?? options.length)
                 ? "All selected"
                 : options
                   .filter((opt) => selected.includes(opt.id))
@@ -184,19 +189,18 @@ export function MultiSelect({
         />
       </div>
 
-      {/* Dropdown with absolute positioning handled via Ref */}
       {isOpen && (
         <div
           ref={dropdownRef}
           className="absolute z-50 w-full rounded-md border-2 border-[#203D8E]/20 bg-white shadow-lg py-2 max-h-60 overflow-y-auto"
-          style={{ top: "100%", marginTop: "8px" }} // Default initial position
+          style={{ top: "100%", marginTop: "8px" }}
         >
           {isMulti && showSelectAll && (
             <div
               onClick={(e) => toggleOption(ALL_ID, e)}
               className="flex items-center space-x-2.5 px-4 py-3 hover:bg-slate-50 cursor-pointer border-b"
             >
-              <CheckBox checked={selected.length === options.length} />
+              <CheckBox checked={selected.length === Math.min(options.length, maxSelection ?? options.length)} />
               <span className="text-sm font-semibold text-[#111827]">
                 Select All
               </span>

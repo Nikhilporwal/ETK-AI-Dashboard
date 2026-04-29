@@ -20,14 +20,15 @@ export default function CompanyDetailsPage() {
     .filter((word) => word.length > 0).length;
 
   const isValidText = text.trim().length >= 70;
-  console.log(formData);
+
+  console.log("formData", formData);
 
   const isAllValid =
     isValidText &&
     formData.business_type.length > 0 &&
     formData.business_stage.length > 0 &&
     formData.business_turnover.length > 0 &&
-    formData.company_intentions.length > 0 &&
+    formData.business_intentions.length > 0 &&
     formData.business_timeline.length > 0 &&
     formData.business_clients.length > 0 &&
     formData.business_deal_size.length > 0 &&
@@ -109,7 +110,7 @@ export default function CompanyDetailsPage() {
 
       {renderSelect(
         "Growth goals",
-        "company_intentions",
+        "business_intentions",
         [
           "Increase revenue",
           "Enter new markets",

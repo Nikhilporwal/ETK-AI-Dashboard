@@ -81,7 +81,7 @@ export async function getJobIdAction(
       },
       MAPS_BASE_URL,
     );
-    console.log("res", res);
+
     if (!res.success || !res.data?.job_id) {
       return { success: false, error: res.message || "Failed to get job_id" };
     }

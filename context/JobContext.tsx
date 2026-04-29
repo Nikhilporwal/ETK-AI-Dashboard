@@ -14,6 +14,7 @@ export type JobFormData = {
   business_type: string[];
   business_stage: string[];
   business_turnover: string[];
+  business_intentions: string[];
 
   business_timeline: string[];
 
@@ -81,6 +82,7 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     business_timeline: [],
     business_clients: [],
     business_deal_size: [],
+    business_intentions: [],
     business_product_adaptation: [],
     business_international_experience: [],
     business_international_enquiries: [],
