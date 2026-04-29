@@ -4,13 +4,34 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { PollingResult } from "@/actions/maps.actions";
 
-// 1. Define Form Shape (Preserved from old JobContext)
 export type JobFormData = {
   user_id?: string;
   company_profile: string;
   countries: string[];
   company_intentions: string[];
   industries: string[];
+
+  business_type: string[];
+  business_stage: string[];
+  business_turnover: string[];
+
+  business_timeline: string[];
+
+  business_clients: string[];
+  business_deal_size: string[];
+  business_product_adaptation: string[];
+
+  business_international_experience: string[];
+  business_international_enquiries: string[];
+
+  business_budget: string[];
+  business_growth_export_team: string[];
+
+  business_preferences: string[];
+  business_risk_appetite: string[];
+
+  business_local_partners: string[];
+  business_type_of_support: string[];
 };
 
 export type UserDetails = {
@@ -18,19 +39,11 @@ export type UserDetails = {
   email: string;
 };
 
-type ModalConfig = {
-  isOpen: boolean;
-  content: React.ReactNode | null;
-  title?: string;
-  noPadding?: boolean;
-};
-
-// 2. Main Context Type
 type GlobalContextType = {
   formData: JobFormData;
   updateData: <K extends keyof JobFormData>(
     key: K,
-    value: JobFormData[K],
+    value: JobFormData[K]
   ) => void;
   setFormData: (data: JobFormData) => void;
 
@@ -61,13 +74,30 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     countries: [],
     company_intentions: [],
     industries: [],
+
+    business_type: [],
+    business_stage: [],
+    business_turnover: [],
+    business_timeline: [],
+    business_clients: [],
+    business_deal_size: [],
+    business_product_adaptation: [],
+    business_international_experience: [],
+    business_international_enquiries: [],
+    business_budget: [],
+    business_growth_export_team: [],
+    business_preferences: [],
+    business_risk_appetite: [],
+    business_local_partners: [],
+    business_type_of_support: [],
   });
+
   const [pollingData, setPollingData] = useState<PollingResult | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   const updateData = <K extends keyof JobFormData>(
     key: K,
-    value: JobFormData[K],
+    value: JobFormData[K]
   ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
@@ -101,13 +131,8 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
       }}
     >
       {isLoading && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm animate-in fade-in duration-300">
-          <Loader2 className="w-12 h-12 animate-spin text-[#203E93] drop-shadow-md" />
-          {loaderMessage && (
-            <p className="mt-4 text-base font-semibold text-[#111827] drop-shadow-sm">
-              {loaderMessage}
-            </p>
-          )}
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/70">
+          <Loader2 className="w-10 h-10 animate-spin" />
         </div>
       )}
       {children}

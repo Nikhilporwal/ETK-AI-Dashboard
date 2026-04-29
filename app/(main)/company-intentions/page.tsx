@@ -12,7 +12,7 @@ const options = [
   "One-off Project",
   "Licensing / Franchising",
   "Investment / Equity",
-  "Subsidiary / Branch set1-up",
+  "Subsidiary / Branch set-up",
 ];
 
 export default function MarketEntryModelPage() {

@@ -1,9 +1,47 @@
 "use client";
 
+import { forgotPasswordAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useGlobalContext } from "@/context/JobContext";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  const { showLoader, hideLoader, isLoading } = useGlobalContext();
+
+  const handleForgotPassword = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+
+    if (!email) {
+      toast.error("Email is required");
+      return;
+    }
+
+    showLoader("Sending reset link...");
+
+    try {
+      const result = await forgotPasswordAction({ email });
+
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Password reset link sent to your email");
+      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      hideLoader();
+    }
+  };
+
   return (
     <div className="w-full flex justify-center items-center py-10">
       <div className="w-full max-w-[420px] flex flex-col space-y-8">
@@ -17,27 +55,32 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div className="space-y-6">
+        <form onSubmit={handleForgotPassword} className="space-y-6">
           {/* Email */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#111827]">
-              What&apos;s your email?<span className="text-red-500">*</span>
+              What&apos;s your email? <span className="text-red-500">*</span>
             </label>
             <Input
               type="email"
               placeholder="Enter your email"
-              className="border-[#203E93] h-12"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border-[#203E93]"
             />
           </div>
 
-          {/* Continue button */}
+          {/* Submit */}
           <Button
+            type="submit"
             variant="primary"
             className="w-full h-14 text-base bg-[#203E93] hover:bg-[#1a3275] text-white"
+            disabled={isLoading}
           >
-            Continue
+            {isLoading ? "Please wait..." : "Continue"}
           </Button>
-        </div>
+        </form>
       </div>
     </div>
   );

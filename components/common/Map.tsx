@@ -90,7 +90,6 @@ const ISO2_TO_ISO3: Record<string, string> = {
   TN: "TUN", UG: "UGA", EH: "ESH", ZM: "ZMB", ZW: "ZWE",
 };
 
-// Pure function — no closure over component state
 function getHeatmapColor(value: number): string {
   if (value >= 85) return "#1e3a8a";
   if (value >= 70) return "#2563eb";
@@ -108,10 +107,6 @@ const DEFAULT_FEATURE_STYLE = {
   visible: true,
 } as const;
 
-// ─────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────
-
 export default function MyMap() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -125,10 +120,8 @@ export default function MyMap() {
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
-  // Stable ref for pixelOffset — created once after map loads
   const pixelOffsetRef = useRef<google.maps.Size | null>(null);
 
-  // ── Derived: ISO3 → score lookup (O(1) access later) ──────
   const highlightedIds = useMemo<Record<string, number>>(() => {
     const map: Record<string, number> = {};
     pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
@@ -138,7 +131,6 @@ export default function MyMap() {
     return map;
   }, [pollingData]);
 
-  // ── Derived: country_name → ISO3 lookup for O(1) access ───
   const countryNameToIso3 = useMemo<Record<string, string>>(() => {
     const map: Record<string, string> = {};
     pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
@@ -148,7 +140,6 @@ export default function MyMap() {
     return map;
   }, [pollingData]);
 
-  // ── Derived: country_name → ISO2 (lowercase) for flag URLs ─
   const countryNameToIso2Lower = useMemo<Record<string, string>>(() => {
     const map: Record<string, string> = {};
     pollingData?.result?.context?.country_scores_json?.forEach((c: any) => {
@@ -157,7 +148,6 @@ export default function MyMap() {
     return map;
   }, [pollingData]);
 
-  // ── Map style callback ─────────────────────────────────────
   const dataStyle = useCallback(
     (feature: any) => {
       const iso3: string | undefined =
@@ -196,8 +186,6 @@ export default function MyMap() {
     [dataStyle]
   );
 
-  // Re-apply styles when highlighted data changes
-  // (avoids full component re-render just for colour refresh)
   const prevHighlightedRef = useRef(highlightedIds);
   if (mapData && prevHighlightedRef.current !== highlightedIds) {
     prevHighlightedRef.current = highlightedIds;
@@ -231,7 +219,6 @@ export default function MyMap() {
     );
   }, []);
 
-  // ── Early returns (after all hooks) ───────────────────────
   if (!isLoaded) return <div>Loading...</div>;
 
   if (!pollingData || pollingData.state !== "done") {
@@ -250,13 +237,11 @@ export default function MyMap() {
   const displayData: any[] =
     pollingData.result?.context?.display_data ?? [];
 
-  // Filter display entries that should show an InfoWindow (O(n) — no nested .find)
   const visibleInfoWindows = displayData.filter((country: any) => {
     const iso3 = countryNameToIso3[country.country_name];
     return iso3 && (selectedCountries.includes(iso3) || hoveredCountry === iso3);
   });
 
-  // InfoWindow options — stable object for pixelOffset
   const infoWindowOptions = {
     disableAutoPan: true,
     pixelOffset: pixelOffsetRef.current ?? undefined,

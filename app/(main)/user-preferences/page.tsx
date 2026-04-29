@@ -50,6 +50,27 @@ const industryOptions = [
   { id: "Technology", label: "Technology" },
 ];
 
+const combineString = (formData: Record<string, any>) => {
+  let str = "";
+
+  Object.entries(formData).forEach(([key, value]) => {
+    if (
+      key === "company_intentions" ||
+      key === "countries" ||
+      key === "industries"
+    ) {
+      return;
+    }
+
+    if (!value || (Array.isArray(value) && value.length === 0)) return;
+
+    str += `${key}: ${Array.isArray(value) ? value.join(", ") : value
+      }\n`;
+  });
+
+  return str.trim();
+};
+
 export default function UserInterestsPage() {
   const router = useRouter();
   const { formData, updateData, showLoader, hideLoader, setPollingData, userDetails } =
@@ -108,8 +129,9 @@ export default function UserInterestsPage() {
     showLoader("Generating heatmaps...");
 
     try {
+      const combinedStr = combineString(formData);
       const [result1, result2] = await Promise.all([
-        getJobIdAction(formData),
+        getJobIdAction({ ...formData, company_profile: combinedStr }),
         saveUserInterestsAction({ ...formData, user_id: userDetails?.user_id }),
       ]);
       console.log("result1", result1);
@@ -163,33 +185,35 @@ export default function UserInterestsPage() {
               options={countryOptions}
               selected={formData.countries}
               onChange={(value) => updateData("countries", value)}
-              placeholder="Select Country"
+              placeholder="Select Countries"
+              showSelectAll={false}
+              maxSelection={5}
             />
 
             {/* {selectedCountries.length > 0 && (
-              <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
-                {countryOptions
-                  .filter((country) => selectedCountries.includes(country.id))
-                  .map((country) => (
-                    <div
-                      key={country.id}
-                      className="flex items-center space-x-2.5 group cursor-pointer"
-                    >
-                      <Checkbox
-                        id={`selected-${country.id}`}
-                        checked={true}
-                        onCheckedChange={() => toggleCountry(country.id)}
-                      />
-                      <label
-                        htmlFor={`selected-${country.id}`}
-                        className="text-sm font-semibold text-[#111827] cursor-pointer group-hover:text-[#203D8E] transition-colors"
+                <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
+                  {countryOptions
+                    .filter((country) => selectedCountries.includes(country.id))
+                    .map((country) => (
+                      <div
+                        key={country.id}
+                        className="flex items-center space-x-2.5 group cursor-pointer"
                       >
-                        {country.label}
-                      </label>
-                    </div>
-                  ))}
-              </div>
-            )} */}
+                        <Checkbox
+                          id={`selected-${country.id}`}
+                          checked={true}
+                          onCheckedChange={() => toggleCountry(country.id)}
+                        />
+                        <label
+                          htmlFor={`selected-${country.id}`}
+                          className="text-sm font-semibold text-[#111827] cursor-pointer group-hover:text-[#203D8E] transition-colors"
+                        >
+                          {country.label}
+                        </label>
+                      </div>
+                    ))}
+                </div>
+              )} */}
           </div>
 
           {/* Industry Selection */}
@@ -205,31 +229,31 @@ export default function UserInterestsPage() {
             />
 
             {/* {selectedIndustries.length > 0 && (
-              <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
-                {industryOptions
-                  .filter((industry) =>
-                    selectedIndustries.includes(industry.id),
-                  )
-                  .map((industry) => (
-                    <div
-                      key={industry.id}
-                      className="flex items-center space-x-2.5 group cursor-pointer"
-                    >
-                      <Checkbox
-                        id={`selected-ind-${industry.id}`}
-                        checked={true}
-                        onCheckedChange={() => toggleIndustry(industry.id)}
-                      />
-                      <label
-                        htmlFor={`selected-ind-${industry.id}`}
-                        className="text-sm font-semibold text-[#111827] cursor-pointer group-hover:text-[#203D8E] transition-colors"
+                <div className="flex flex-wrap gap-x-6 gap-y-4 pt-2">
+                  {industryOptions
+                    .filter((industry) =>
+                      selectedIndustries.includes(industry.id),
+                    )
+                    .map((industry) => (
+                      <div
+                        key={industry.id}
+                        className="flex items-center space-x-2.5 group cursor-pointer"
                       >
-                        {industry.label}
-                      </label>
-                    </div>
-                  ))}
-              </div>
-            )} */}
+                        <Checkbox
+                          id={`selected-ind-${industry.id}`}
+                          checked={true}
+                          onCheckedChange={() => toggleIndustry(industry.id)}
+                        />
+                        <label
+                          htmlFor={`selected-ind-${industry.id}`}
+                          className="text-sm font-semibold text-[#111827] cursor-pointer group-hover:text-[#203D8E] transition-colors"
+                        >
+                          {industry.label}
+                        </label>
+                      </div>
+                    ))}
+                </div>
+              )} */}
           </div>
         </div>
 

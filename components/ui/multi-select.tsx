@@ -4,6 +4,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { LucideIcon } from "lucide-react";
+import toast from "react-hot-toast";
 
 // Simple visual-only checkbox
 function CheckBox({ checked }: { checked: boolean }) {
@@ -32,9 +33,12 @@ export interface Option {
 interface MultiSelectProps {
   options: Option[];
   selected: string[];
+  isMulti?: boolean;
   onChange: (selected: string[]) => void;
   placeholder?: string;
   className?: string;
+  showSelectAll?: boolean
+  maxSelection?: number;
 }
 
 const ALL_ID = "__all__";
@@ -45,6 +49,9 @@ export function MultiSelect({
   onChange,
   placeholder = "Select options",
   className,
+  showSelectAll = true,
+  maxSelection,
+  isMulti = true,
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,23 +94,63 @@ export function MultiSelect({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  // const toggleOption = (id: string, e?: React.MouseEvent) => {
+  //   if (e) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   }
+
+  //   if (id === ALL_ID && showSelectAll) {
+  //     onChange(
+  //       selected.length === options.length ? [] : options.map((opt) => opt.id),
+  //     );
+  //     return;
+  //   }
+  //   onChange(
+  //     selected.includes(id)
+  //       ? selected.filter((i) => i !== id)
+  //       : [...selected, id],
+  //   );
+  // };
+
   const toggleOption = (id: string, e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
 
-    if (id === ALL_ID) {
-      onChange(
-        selected.length === options.length ? [] : options.map((opt) => opt.id),
-      );
+    if (!isMulti) {
+      if (selected.includes(id)) {
+        onChange([]);
+      } else {
+        onChange([id]);
+        setIsOpen(false);
+      }
       return;
     }
-    onChange(
-      selected.includes(id)
-        ? selected.filter((i) => i !== id)
-        : [...selected, id],
-    );
+
+    if (id === ALL_ID && showSelectAll) {
+      const allIds = options.map((opt) => opt.id);
+
+      if (maxSelection && allIds.length > maxSelection) {
+        onChange(allIds.slice(0, maxSelection));
+      } else {
+        onChange(selected.length === options.length ? [] : allIds);
+      }
+      return;
+    }
+
+    const isSelected = selected.includes(id);
+
+    if (isSelected) {
+      onChange(selected.filter((i) => i !== id));
+    } else {
+      if (maxSelection && selected.length >= maxSelection) {
+        toast.error(`You can select up to ${maxSelection} options`);
+        return;
+      }
+      onChange([...selected, id]);
+    }
   };
 
   return (
@@ -120,9 +167,11 @@ export function MultiSelect({
         >
           {selected.length === 0
             ? placeholder
-            : selected.length === options.length
-              ? "All selected"
-              : options
+            : !isMulti
+              ? options.find(opt => opt.id === selected[0])?.label
+              : selected.length === options.length
+                ? "All selected"
+                : options
                   .filter((opt) => selected.includes(opt.id))
                   .map((opt) => opt.label)
                   .join(", ")}
@@ -142,15 +191,17 @@ export function MultiSelect({
           className="absolute z-50 w-full rounded-md border-2 border-[#203D8E]/20 bg-white shadow-lg py-2 max-h-60 overflow-y-auto"
           style={{ top: "100%", marginTop: "8px" }} // Default initial position
         >
-          <div
-            onClick={(e) => toggleOption(ALL_ID, e)}
-            className="flex items-center space-x-2.5 px-4 py-3 hover:bg-slate-50 cursor-pointer border-b"
-          >
-            <CheckBox checked={selected.length === options.length} />
-            <span className="text-sm font-semibold text-[#111827]">
-              Select All
-            </span>
-          </div>
+          {isMulti && showSelectAll && (
+            <div
+              onClick={(e) => toggleOption(ALL_ID, e)}
+              className="flex items-center space-x-2.5 px-4 py-3 hover:bg-slate-50 cursor-pointer border-b"
+            >
+              <CheckBox checked={selected.length === options.length} />
+              <span className="text-sm font-semibold text-[#111827]">
+                Select All
+              </span>
+            </div>
+          )}
 
           {options.map((option) => (
             <div

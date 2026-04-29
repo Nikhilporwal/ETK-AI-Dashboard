@@ -40,7 +40,7 @@ export default function SignupPage() {
   const passedCount = PASSWORD_REQUIREMENTS.filter((r) => r.test(password)).length;
   const { label, color, barColor } = getStrengthMeta(passedCount);
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (passedCount < 4 || !email) return;
 

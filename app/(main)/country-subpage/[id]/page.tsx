@@ -100,16 +100,16 @@ export default function CountrySubPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {result?.context?.data?.map((arr: any, idx: number) => (
+            {result?.context?.data?.map((arr: string[], idx: number) => (
               <div
                 key={idx}
-                className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4"
+                className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-2"
               >
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider h-8">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   {arr?.[0] || "Indicator"}
                 </h3>
                 <div className="text-2xl font-bold">
-                  {arr?.[1] || 0}/{arr?.[2] || 100}
+                  {arr?.[1] || 0}/100
                 </div>
               </div>
             ))}
@@ -118,7 +118,7 @@ export default function CountrySubPage() {
 
         {/* Opportunities & Risks */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-4 font-semibold">
+          {/* <div className="space-y-4 font-semibold">
             <h2 className="text-lg font-semibold ml-1">
               Opportunities & Demand
             </h2>
@@ -144,9 +144,9 @@ export default function CountrySubPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h2 className="text-lg font-semibold ml-1">Risks & Mitigations</h2>
 
             <div className="bg-white rounded border border-slate-200 h-[400px] overflow-hidden flex flex-col shadow-xs">
@@ -178,15 +178,58 @@ export default function CountrySubPage() {
                 })}
               </div>
             </div>
+          </div> */}
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold ml-1">Risks & Mitigations</h2>
+
+            <div className="bg-white rounded border border-slate-200 h-[380px] overflow-hidden flex flex-col shadow-sm">
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+                {risks.map((arr: string[], idx: number) => {
+                  const positive = arr?.[0] || "";
+                  const negative = arr?.[1] || "";
+
+                  return (
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-red-100 bg-red-50 p-4"
+                    >
+                      <ul className="list-disc ml-4 text-xs text-slate-600 space-y-2">
+                        {negative && <li>{negative}</li>}
+                        {positive && <li>{positive}</li>}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-800">
+              Industry Analysis
+            </h2>
+
+            <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-sm">
+              <ul className="flex flex-wrap gap-3 text-sm text-slate-700">
+                {industries.map((ind: string, idx: number) => (
+                  <li
+                    key={idx}
+                    className="bg-red-50 border border-red-100 rounded-full px-4 py-1.5 hover:bg-red-100 transition whitespace-nowrap"
+                  >
+                    {ind}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Industry Analysis */}
-        <div className="space-y-6">
+        {/* <div className="space-y-6">
           <h2 className="text-lg font-semibold">Industry analysis</h2>
 
           <div className="space-y-6">
-            {/* Score */}
             <div>
               <div className="text-[12px] uppercase font-bold text-slate-400 tracking-wider">
                 Score
@@ -197,7 +240,6 @@ export default function CountrySubPage() {
               </div>
             </div>
 
-            {/* Industries Flex */}
             <div className="flex flex-wrap gap-4">
               {industries.map((ind: string, idx: number) => (
                 <div
@@ -211,7 +253,7 @@ export default function CountrySubPage() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </main>
 
       <style jsx global>{`

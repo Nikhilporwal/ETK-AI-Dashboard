@@ -15,7 +15,6 @@ export type AuthData = {
   email: string;
 };
 
-// Discriminated union
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
@@ -91,5 +90,55 @@ export async function getUserIdAction(): Promise<ActionResult<UserDetails>> {
 
   } catch (error) {
     return { success: false, error: "Failed to fetch user details" };
+  }
+}
+
+export async function forgotPasswordAction(
+  data: { email: string }
+): Promise<ActionResult<UserDetails>> {
+  try {
+    const res = await apiFetch<UserDetails>(
+      `/forgot-password`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!res.success) {
+      return { success: false, error: res.message };
+    }
+
+    return { success: true, data: res.data };
+
+  } catch (error) {
+    return { success: false, error: "Failed to reset password" };
+  }
+}
+
+export async function verifyOtpAction(
+  data: {
+    email: string
+    otp: string
+    new_password: string
+  }
+): Promise<ActionResult<UserDetails>> {
+  try {
+    const res = await apiFetch<UserDetails>(
+      `/reset-password`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!res.success) {
+      return { success: false, error: res.message };
+    }
+
+    return { success: true, data: res.data };
+
+  } catch (error) {
+    return { success: false, error: "Failed to verify otp & reset password" };
   }
 }
