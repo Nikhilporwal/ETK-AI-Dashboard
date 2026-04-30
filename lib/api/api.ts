@@ -22,7 +22,6 @@ export default async function apiFetch<T>(
     });
 
     const json = await response.json().catch(() => ({}));
-
     // Don't check success for passionlabs API
     if (FINAL_BASE_URL.includes("https://etk-api.passionlabs.ai")) {
       return {

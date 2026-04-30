@@ -135,7 +135,7 @@ export function MainHeader() {
                     <button
                       onClick={() => {
                         setIsDropdownOpen(false);
-                        router.push("/account");
+                        router.push("/account?tab=profile");
                       }}
                       className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left"
                     >

@@ -107,6 +107,8 @@ const DEFAULT_FEATURE_STYLE = {
   visible: true,
 } as const;
 
+const AFRICA_ISO3 = new Set(Object.values(ISO2_TO_ISO3));
+
 export default function MyMap() {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -154,8 +156,21 @@ export default function MyMap() {
         feature.getProperty("ISO3166-1-Alpha-3") ??
         feature.getProperty("iso_a3");
 
-      if (!iso3) return DEFAULT_FEATURE_STYLE;
+      if (!iso3) return { visible: false };
 
+      // If NOT Africa then greyed out
+      if (!AFRICA_ISO3.has(iso3)) {
+        return {
+          fillColor: "#7c7c7cff",
+          strokeColor: "#d1d5db",
+          strokeWeight: 0.5,
+          fillOpacity: 0.4,
+          visible: true,
+          clickable: false,
+        };
+      }
+
+      // Africa then normal heatmap
       const value = highlightedIds[iso3];
       if (value === undefined) return DEFAULT_FEATURE_STYLE;
 
@@ -163,7 +178,7 @@ export default function MyMap() {
         fillColor: getHeatmapColor(value),
         strokeColor: "#065f46",
         strokeWeight: 1,
-        fillOpacity: 0.6,
+        fillOpacity: 0.7,
         visible: true,
       };
     },

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CreditCard, User, Bell, Users, Pencil, Trash2 } from "lucide-react";
+import { CreditCard, User, Bell, Users, Pencil, Trash2, X } from "lucide-react";
 import clsx from "clsx";
 
 export default function AccountModal() {
@@ -12,7 +12,7 @@ export default function AccountModal() {
     const tab = params.get("tab") || "profile";
 
     const setTab = (value: string) => {
-        router.push(`?tab=${value}`);
+        router.replace(`?tab=${value}`, { scroll: false });
     };
 
     const closeModal = () => router.back();
@@ -37,6 +37,12 @@ export default function AccountModal() {
                         <h2 className="text-sm font-semibold text-gray-800">
                             Account
                         </h2>
+                        <button
+                            onClick={closeModal}
+                            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
 
                     {/* NAV */}

@@ -74,13 +74,10 @@ Map.css .gm-style-iw {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1) !important;
 }
 
-
 .custom-info-box {
   pointer-events: none;
-  /* Taaki InfoWindow hover events ko block na kare */
 }
 
-/* Agar aapko button par click chahiye, to button ko allow karein */
 .custom-info-box button {
   pointer-events: auto;
 }
